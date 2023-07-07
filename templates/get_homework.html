@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Check Database
+{% endblock %}
+{% block main %}
+    <h2 class="text-center">Check by Class</h2>
+    <form action="/check_by_grade" class="row g-3 text-center" method="POST">
+        <div class="col-2"></div>
+        <div class="col-2">
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_homework" value="get_homework">Get Homeworks</button>
+        </div>
+        <div class="col-3">
+            <select autofocus class="form-select text-center form-control-lg" id="grade" name="grade" required>
+                <option selected disabled value="">Select Class</option>
+                {% for grade in grades_dict %}
+                    <option value="{{ grade }}">{{ grades_dict[grade] }}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <div class="col-2">
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_tests" value="get_tests">Get Tests</button>
+          </div>
+          <div class="col-6">
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_timetable" value="get_timetable">Get Timetable</button>
+          </div>
+          <div class="col-4">
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_outline" value="get_outline">Get Report</button>
+          </div>
+    </form>
+
+    <br>
+
+    <h2 class="text-center">Check by Due Date</h2>
+    <form action="/check_by_date" class="row g-3 text-center" method="POST">
+        <div class="col-2"></div>
+        <div class="col-2">
+          <button type="submit" class="btn btn-outline-primary mb-3" name="get_homework" value="get_homework">Get Homeworks</button>
+        </div>
+        <div class="col-3">
+            <input autocomplete="off" class="form-control" id="date" name="date" placeholder="Due Date" required type="date" value="{{ today }}">
+          </div>
+          <div class="col-2">
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_tests" value="get_tests">Get Tests</button>
+          </div>
+          <div class="col-6">
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_timetable" value="get_timetable">Get Timetable</button>
+          </div>
+          <div class="col-4">
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_outline" value="get_outline">Get Report</button>
+          </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    About
+{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="row align-items-start">
+            <div class="col-6">
+                <h3>
+                    <div>Bhawna Patel</div>
+                </h3>
+                <h4>
+                    <div>Ph. No: <u>7203829937</u></div>
+                    <div>Email: <a href="mailto: isucceedcoachingclass2016@gmail.com" class="my_link" id="link1">isucceedcoachingclass2016@gmail.com</a></div>
+                    <div>Twitter: <a href="" class="my_link" id="link1"></a></div>
+                    <div>Instagram: <a href="" class="my_link" id="link1"></a></div>
+                    <div>Facebook: <a href="" class="my_link" id="link1"></a></div>
+                </h4>
+
+                <script>
+                    document.getElementById("link1").addEventListener("mouseover", mouseOver);
+                    document.getElementById("link1").addEventListener("mouseout", mouseOut);
+
+                    function mouseOver() {
+                      document.getElementById("link1").style.color = "red";
+                    }
+
+                    function mouseOut() {
+                      document.getElementById("link1").style.color = "blue";
+                    }
+                  </script>
+
+            </div>
+            <div class="col-3">
+                <img src="/static/bhawna.jpg" alt="Bhawna Patel" class="image">
+                <figcaption class="figure-caption text-end">Bhawna Patel</figcaption>
+            </div>
+            <div class="col-3">
+                <figure>
+                <a href="https://www.google.com/maps/search/?api=1&query=20.374212559550575, 72.92569019507927">
+                    <img class="image" src="/static/maps.png">
+                </a>
+                <figcaption class="figure-caption text-end">Shiv Apartment, Morarji Circle</figcaption>
+                </figure>
+            </div>
+        </div>
+    </div>
+{% endblock %}

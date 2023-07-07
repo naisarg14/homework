@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    <h2 class="text-center">Today's Classes</h2>
+        <table class="text-center table table-info table-hover table-bordered border-primary align-middle">
+            <thead>
+                <tr class="table-primary table-bordered border-primary align-middle">
+                    <th>Class</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider align-middle">
+                {% for temp in timetable %}
+                    <tr>
+                        <td>{{ temp.grade }}</td>
+                        <td>{{ temp.subject }}</td>
+                        <td>{{ temp.class_date }}</td>
+                        <td>{{ temp.start_time }}</td>
+                        <td>{{ temp.end_time }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    <br>
+
+    <h2 class="text-center">Assignments Due Today</h2>
+    <table class="text-center table table-warning table-hover table-bordered border-warning align-middle">
+        <thead>
+            <tr class="table-primary table-bordered border-primary align-middle">
+                <th>Title</th>
+                <th>Date Given</th>
+                <th>Due Date</th>
+                <th>Class</th>
+                <th>Subject</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider align-middle">
+            {% for assignment in assignments %}
+            <tr>
+                <td>{{ assignment.title }}</td>
+                <td>{{ assignment.date_given }}</td>
+                <td>{{ assignment.due_date }}</td>
+                <td>{{ assignment.grade }}</td>
+                <td>{{ assignment.subject }}</td>
+                <td>{{ assignment.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <h2 class="text-center">Exams Sheduled Today</h2>
+    <table class="text-center table table-hover table-success table-bordered border-success align-middle">
+        <thead>
+            <tr class="table-primary table-bordered border-primary align-middle">
+                <th>Title</th>
+                <th>Class</th>
+                <th>Exam Date</th>
+                <th>Exam Time</th>
+                <th>Marks</th>
+                <th>Subject</th>
+                <th>Portion</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider align-middle">
+            {% for exam in exams %}
+            <tr>
+                <td>{{ exam.title }}</td>
+                <td>{{ exam.grade }}</td>
+                <td>{{ exam.exam_date }}</td>
+                <td>{{ exam.exam_time }}</td>
+                <td>{{ exam.marks }}</td>
+                <td>{{ exam.subject }}</td>
+                <td>{{ exam.portion }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <h2 class="text-center">Exams Sheduled Tomorrow</h2>
+    <table class="text-center table table-danger table-hover table-bordered border-danger align-middle">
+        <thead>
+            <tr class="table-primary table-bordered border-primary align-middle">
+                <th>Title</th>
+                <th>Class</th>
+                <th>Exam Date</th>
+                <th>Exam Time</th>
+                <th>Marks</th>
+                <th>Subject</th>
+                <th>Portion</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider align-middle">
+            {% for exam in tomorrow_exams %}
+            <tr>
+                <td>{{ exam.title }}</td>
+                <td>{{ exam.grade }}</td>
+                <td>{{ exam.exam_date }}</td>
+                <td>{{ exam.exam_time }}</td>
+                <td>{{ exam.marks }}</td>
+                <td>{{ exam.subject }}</td>
+                <td>{{ exam.portion }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

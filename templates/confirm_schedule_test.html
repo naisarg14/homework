@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ formatted_text[0] }}
+{% endblock %}
+{% block main %}
+    <h2 class="text-center">{{ formatted_text[0]}}</h2>
+    <div class="container row g-3">
+        <div class="col-md-4"></div>
+        <div class="form-group col-md-4">
+            <textarea type="text" class="form-control" oninput="adjustTextareaHeight()" id="textbox">{{ formatted_text[1] }}</textarea>
+        </div>
+        <div class="form-row text-center">
+            <button class="btn btn-outline-success" onclick="copyText()">Copy</button>
+            {% if formatted_text[0] == "Exam Schedule" %}
+                <a href="/schedule_test" class="btn btn-outline-primary">Add Another Exam</a>
+            {% elif formatted_text[0] == "Homework Schedule" %}
+                <a href="/add_homework" class="btn btn-outline-primary">Add Another Homework</a>
+            {% elif formatted_text[0] == "Class Outline" %}
+                <a href="/class_outline" class="btn btn-outline-primary">Add Another Class Outline</a>
+            {% else %}
+                <a href="/timetable" class="btn btn-outline-primary">Add Another Class</a>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        function copyText() {
+            var textbox = document.getElementById("textbox");
+            textbox.select();
+            document.execCommand("copy");
+            alert("Text copied to clipboard!");
+        }
+
+        function adjustTextareaHeight() {
+            var textarea = document.getElementById("textbox");
+            textarea.style.height = "auto";
+            textarea.style.height = textarea.scrollHeight + 15 + "px";
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+        adjustTextareaHeight();
+        });
+    </script>
+{% endblock %}

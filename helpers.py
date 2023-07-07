@@ -1,0 +1,110 @@
+from datetime import datetime
+from cs50 import SQL
+
+grades_dict = {"9MWF": "Class 9 MWF",
+               "9TTS": "Class 9 TTS",
+               "9MOR": "Isucceed Achievers 6 AM",
+               "10TTS": "Class 10-Diligent Squad",
+               "11MWF": "Class 11",
+               "12MWF": "Class 12",
+               "12AM": "Class 12 AM",
+               "diya": "Diya",
+               "neel": "Neel",
+               "ansh": "Ansh",
+               "sakshi": "Sakshi",
+               }
+database = "homework.db"
+
+def process_time(time_str):
+    time_obj = datetime.strptime(time_str, '%H:%M')
+    formatted_time = time_obj.strftime('%I:%M %p')
+    return formatted_time
+
+def process_date(date_str):
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    formatted_date = date_obj.strftime("%d %B %Y")
+    return formatted_date
+
+def process_homework(assignments):
+    for assignment in assignments:
+        assignment["grade"] = grades_dict[assignment["grade"]]
+        assignment["date_given"] = process_date(assignment["date_given"])
+        assignment["due_date"] = process_date(assignment["due_date"])
+    return assignments
+
+def process_exams(exams):
+    for exam in exams:
+        exam["grade"] = grades_dict[exam["grade"]]
+        exam["exam_time"] = process_time(exam["exam_time"])
+        exam["exam_date"] = process_date(exam["exam_date"])
+    return exams
+
+def process_outline(outlines):
+    for outline in outlines:
+        outline["grade"] = grades_dict[outline["grade"]]
+        outline["class_date"] = process_date(outline["class_date"])
+    return outlines
+
+def process_timetable(timetables):
+    for timetable in timetables:
+        timetable["grade"] = grades_dict[timetable["grade"]]
+        timetable["class_date"] = process_date(timetable["class_date"])
+        timetable["start_time"] = process_time(timetable["start_time"])
+        timetable["end_time"] = process_time(timetable["end_time"])
+    return timetable
+
+def process_worksheet(worksheets):
+    for worksheet in worksheets:
+        worksheet["grade"] = grades_dict[worksheet["grade"]]
+        worksheet["given_date"] = process_date(worksheet["class_date"])
+        worksheet["start_time"] = process_time(worksheet["start_time"])
+        worksheet["end_time"] = process_time(worksheet["end_time"]):
+    return worksheets
+
+
+def format_homework(id):
+    db = SQL(f"sqlite:///{database}")
+    assignments = db.execute("SELECT * FROM homework WHERE homework_id = ? ", id)
+    assignments = process_homework(assignments)
+    assignment = assignments[0]
+    title = "Homework Schedule"
+    schedule = f'Isucceed Coaching Class-Homework Schedule\nTitle: {assignment["title"]}\nClass: {assignment["grade"]}\nSubject: {assignment["subject"]}\nDescription: {assignment["description"]}\nDue Date: {assignment["due_date"]}\nBhawna Patel'
+    return (title, schedule)
+
+def format_exam(id):
+    db = SQL(f"sqlite:///{database}")
+    exams = db.execute("SELECT * FROM exam WHERE exam_id = ?", id)
+    exams = process_exams(exams)
+    exam = exams[0]
+    title = "Exam Schedule"
+    schedule = f'Isucceed Coaching Class-Exam Schedule\nTitle: {exam["title"]}\nClass: {exam["grade"]}\nSubject: {exam["subject"]}\nPortion: {exam["portion"]}\nDate: {exam["exam_date"]}\nTime: {exam["exam_time"]}\nMarks: {exam["marks"]}\nBhawna Patel'
+    return (title, schedule)
+
+def format_outline(id):
+    db = SQL(f"sqlite:///{database}")
+    outlines = db.execute("SELECT * FROM outline WHERE outline_id = ?", id)
+    outlines = process_outline(outlines)
+    outline = outlines[0]
+    title = "Class Outline"
+    schedule = f'Isucceed Coaching Class-Class Outline\nTitle: {outline["title"]}\nClass: {outline["grade"]}\nSubject: {outline["subject"]}\nDescription: {outline["description"]}\nDate: {outline["class_date"]}\nBhawna Patel'
+    return (title, schedule)
+
+def format_timetable(id):
+    db = SQL(f"sqlite:///{database}")
+    timetables = db.execute("SELECT * FROM timetable WHERE timetable_id = ?", id)
+    timetables = process_timetable(timetables)
+    timetable = timetables[0]
+    title = "Class Schedule"
+    schedule = f'Isucceed Coaching Class-Class Schedule\nClass: {timetable["grade"]}\nSubject: {timetable["subject"]}\nDate: {timetable["class_date"]}\nTime: {timetable["start_time"]} - {timetable["end_time"]}\nBhawna Patel'
+    return (title, schedule)
+
+
+def format_worksheet(id):
+    db = SQL(f"sqlite:///{database}")
+    worksheets = db.execute("SELECT * FROM worksheet WHERE worksheet_id = ?", id)
+    worksheets = process_worksheet(worksheets)
+    worksheet = worksheets[0]
+    title = "Worksheet Issued"
+    schedule = f'Isucceed Coaching Class-Worksheet Record Schedule\nTitle: {"title"}\nClass: {worksheet["grade"]}\nSubject: {worksheet["subject"]}\nDate: {worksheet["given_date"]}\nTime: {worksheet["copies"]} - {worksheet["notes"]}\nBhawna Patel'
+    return (title, schedule)
+
