@@ -1,6 +1,6 @@
 from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from cs50 import SQL
-from flask_session import Session
+#from flask_session import Session
 from datetime import datetime, timedelta
 import helpers
 import google_calander
@@ -16,7 +16,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+#Session(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///homework.db")
@@ -64,7 +64,7 @@ def create_table():
     db.execute("CREATE TABLE IF NOT EXISTS homework (homework_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, date_given DATE, due_date DATE, grade TEXT,subject TEXT, description TEXT, event_id TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS exam (exam_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, exam_date DATE, grade TEXT, exam_time TEXT, marks INTEGER, portion TEXT, subject TEXT, event_id TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS outline (outline_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, class_date DATE, grade TEXT, description TEXT, subject TEXT, event_id TEXT)")
-    db.execute("CREATE TABLE IF NOT EXISTS timetable (timetable_id INTEGER PRIMARY KEY AUTOINCREMENT, grade TEXT, subject TEXT, class_date DATE, start_time TEXT, end_time TEXT, event_id TEXT)")
+    db.execute("CREATE TABLE IF NOT EXISTS timetable (timetable_id INTEGER PRIMARY KEY AUTOINCREMENT, grade TEXT, subject TEXT, class_date DATE, start_time TEXT, end_time TEXT, event_id TEXT, description TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS worksheet (worksheet_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, given_date DATE, grade TEXT, subject TEXT, copies INTEGER, notes TEXT, publication TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS guest (guest_id INTEGER PRIMARY KEY AUTOINCREMENT, grade TEXT, date_given DATE, subject TEXT, duration TEXT, title TEXT, description TEXT)")
 
@@ -98,7 +98,7 @@ def add_homework():
         due_date = request.form['due_date']
         grade = request.form['grade']
         subject = request.form['subject']
-        description = request.form['description'].capitalize()
+        description = request.form['description']
 
 
         id = db.execute(" INSERT INTO homework (title, date_given, due_date, grade, subject, description) VALUES (?, ?, ?, ?, ?, ?)",
@@ -190,7 +190,7 @@ def class_report():
         title = request.form['title'].title()
         class_date = request.form['class_date']
         grade = request.form['grade']
-        description = request.form['description'].capitalize()
+        description = request.form['description']
         subject = request.form['subject']
 
         id = db.execute("INSERT INTO outline (title, class_date, grade, description, subject) VALUES (?, ?, ?, ?, ?)", title, class_date, grade, description, subject)
@@ -328,8 +328,10 @@ def timetable():
         class_date = request.form["class_date"]
         start_time = request.form["start_time"]
         end_time = request.form["end_time"]
+        description = request.form['description']
 
-        db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time) VALUES (?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time)
+
+        db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description) VALUES (?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description)
         flash("Added Successfully!")
 
 
@@ -391,8 +393,8 @@ def add_worksheet():
         return render_template("add_worksheet.html", grades_dict=grades_dict, publications=publications, today=today)
 
     if request.method == "POST":
-        publication = request.form["publication"]
-        title = request.form["title"]
+        publication = request.form["publication"].title()
+        title = request.form["title"].title()
         given_date = request.form["given_date"]
         grade = request.form["grade"]
         subject = request.form["subject"]
@@ -421,7 +423,7 @@ def guest_lecture():
         date_given = request.form["date_given"]
         subject = request.form["subject"]
         duration = request.form["duration"]
-        title = request.form["title"]
+        title = request.form["title"].title()
         description = request.form["description"]
 
         id = db.execute("INSERT INTO guest_lecture (grade, date_given, subject, duration, title, description) VALUES (?, ?, ?, ?, ?, ?)", grade, date_given, subject, duration, title, description)
@@ -487,6 +489,4 @@ def about():
 
 
 #add time in report
-#change capitalise settings for discription
 #add description in time table
-#make notes and desc non requied
