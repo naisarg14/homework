@@ -6,6 +6,7 @@
 {% block main %}
 <h2 class="text-center">Guest Lecture</h2>
 <form action="/guest_lecture" class="row g-3" method="post">
+    <div class="col-1"></div>
     <div class="col-3">
         <label for="grade">Select Class</label>
         <select autofocus class="form-select text-center form-control-lg" id="grade" name="grade" required>
@@ -19,7 +20,7 @@
         <label for="date_given">Date Of Lecture</label>
         <input autocomplete="off" class="form-control form-control-lg" id="lecture_date" name="lecture_date" placeholder="Date Of Lecture" required type="date" value="{{ today }}">
     </div>
-    <div class="col-3">
+    <div class="col-2">
         <label for="subject">Select Subject</label>
         <select class="form-select text-center form-control-lg" id="subject" name="subject" required>
             <option selected disabled value="">Select Subject</option>
@@ -29,7 +30,7 @@
         </select>
     </div>
     <div class="col-2">
-        <label for="duration">Marks</label>
+        <label for="duration">Duration</label>
         <input autocomplete="off" class="form-control form-control-lg" id="duration" name="duration" placeholder="Duration" required type="number">
     </div>
     <div class="form-row"></div>

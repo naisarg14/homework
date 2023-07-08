@@ -51,6 +51,8 @@ grades_dict = {"9MWF": "Class 9 MWF",
                "neel": "Neel",
                "ansh": "Ansh",
                "sakshi": "Sakshi",
+               "vedant": "Vedant",
+               "dhiya": "Dhiya",
                }
 subjects = ["Mathematics", "Science", "Mathematics and Science"]
 publications = {"oswaal": "Oswaal Books",
@@ -61,9 +63,9 @@ publications = {"oswaal": "Oswaal Books",
 def create_table():
     db.execute("CREATE TABLE IF NOT EXISTS homework (homework_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, date_given DATE, due_date DATE, grade TEXT,subject TEXT, description TEXT, event_id TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS exam (exam_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, exam_date DATE, grade TEXT, exam_time TEXT, marks INTEGER, portion TEXT, subject TEXT, event_id TEXT)")
-    db.execute("CREATE TABLE IF NOT EXISTS outline (outline_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, class_date DATE, grade TEXT, description TEXT, subject TEXT, event_id TEXT)")
+    db.execute("CREATE TABLE IF NOT EXISTS outline (outline_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, class_date DATE, grade TEXT, description TEXT, subject TEXT, event_id TEXT,)")
     db.execute("CREATE TABLE IF NOT EXISTS timetable (timetable_id INTEGER PRIMARY KEY AUTOINCREMENT, grade TEXT, subject TEXT, class_date DATE, start_time TEXT, end_time TEXT, event_id TEXT)")
-    db.execute("CREATE TABLE IF NOT EXISTS worksheet (worksheet_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, given_date DATE, grade TEXT, subject TEXT, copies INTEGER, notes TEXT, publication)")
+    db.execute("CREATE TABLE IF NOT EXISTS worksheet (worksheet_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, given_date DATE, grade TEXT, subject TEXT, copies INTEGER, notes TEXT, publication TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS guest (guest_id INTEGER PRIMARY KEY AUTOINCREMENT, grade TEXT, date_given DATE, subject TEXT, duration TEXT, title TEXT, description TEXT)")
 
 
@@ -270,6 +272,21 @@ def check_homework_grade():
             table = "timetable"
             session = f"GT{grade}"
 
+        if "get_timetable" in request.form:
+            assignments = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY class_date", grade))
+            table = "timetable"
+            session = f"GT{grade}"
+        
+        if "get_worksheet" in request.form:
+            assignments = helpers.process_worksheet(db.execute("SELECT * FROM worksheet WHERE grade = ? ORDER BY given_date", grade))
+            table = "worksheet"
+            session = f"GW{grade}"
+
+        if "get_guest" in request.form:
+            assignments = helpers.process_guest(db.execute("SELECT * FROM guest WHERE grade = ? ORDER BY date_given", grade))
+            table = "guest"
+            session = f"GL{grade}"
+
         return render_template('view_homework.html', assignments=assignments, table=table, session=session)
 
 
@@ -385,7 +402,7 @@ def add_worksheet():
         id = db.execute("INSERT INTO worksheet (publication, title, given_date, grade, subject, copies, notes) VALUES (?, ?, ?, ?, ?, ?, ?)", publication, title, given_date, grade, subject, copies, notes)
 
         if "add_new" in request.form:
-            return render_template("add_worksheet.html", grades_dict=grades_dict, publications=publications, today=today)
+            return redirect("/worksheet")
         
         if "add_message" in request.form:
             formatted_text = helpers.format_worksheet(id)
@@ -396,7 +413,8 @@ def add_worksheet():
 @app.route("/guest_lecture", methods=["GET", "POST"])
 def guest_lecture():
     if request.method == "GET":
-        return render_template("guest_lecture.html")
+        today = datetime.now().date().isoformat()
+        return render_template("guest_lecture.html", today=today, grades_dict=grades_dict)
 
     if request.method == "POST":
         grade = request.form["grade"]
@@ -406,8 +424,69 @@ def guest_lecture():
         title = request.form["title"]
         description = request.form["description"]
 
+        id = db.execute("INSERT INTO guest_lecture (grade, date_given, subject, duration, title, description) VALUES (?, ?, ?, ?, ?, ?)", grade, date_given, subject, duration, title, description)
+
+        return redirect("/guest_lecture")
+
+
+
+#Complete Lists
+@app.route("/full_homework")
+def full_homework():
+    assignments = db.execute("SELECT * FROM homework ORDER BY due_date")
+    assignments = helpers.process_homework(assignments)
+    table = "homework"
+    session = "AH"
+    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+
+@app.route("/full_exam")
+def full_exam():
+    assignments  = db.execute("SELECT * FROM exam ORDER BY exam_date")
+    assignments = helpers.process_exams(assignments)
+    table = "exam"
+    session = "AE"
+    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+
+@app.route("/full_report")
+def full_report():
+    assignments = db.execute("SELECT * FROM outline ORDER BY class_date")
+    assignments = helpers.process_outline(assignments)
+    table = "outline"
+    session = "AO"
+    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+
+@app.route("/full_timetable")
+def full_timetable():
+    assignments = db.execute("SELECT * FROM timetable ORDER BY class_date")
+    assignments = helpers.process_timetable(assignments)
+    table = "timetable"
+    session = "AT"
+    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+
+@app.route("/full_worksheet")
+def full_worksheey():
+    assignments = db.execute("SELECT * FROM worksheet ORDER BY given_date")
+    assignments = helpers.process_worksheet(assignments)
+    table = "worksheet"
+    session = "AW"
+    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+
+@app.route("/full_guest")
+def full_guest():
+    assignments = db.execute("SELECT * FROM guest ORDER BY date_given")
+    assignments = helpers.process_guest(assignments)
+    table = "guest"
+    session = "AL"
+    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
 
 
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+
+
+#add time in report
+#change capitalise settings for discription
+#add description in time table
+#make notes and desc non requied

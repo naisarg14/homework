@@ -8,7 +8,7 @@
     <form action="/check_by_grade" class="row g-3 text-center" method="POST">
         <div class="col-2"></div>
         <div class="col-2">
-            <button type="submit" class="btn btn-outline-primary mb-3" name="get_homework" value="get_homework">Get Homeworks</button>
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_homework" value="get_homework">Homeworks</button>
         </div>
         <div class="col-3">
             <select autofocus class="form-select text-center form-control-lg" id="grade" name="grade" required>
@@ -19,13 +19,15 @@
             </select>
           </div>
           <div class="col-2">
-            <button type="submit" class="btn btn-outline-primary mb-3" name="get_tests" value="get_tests">Get Tests</button>
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_tests" value="get_tests">Tests</button>
           </div>
-          <div class="col-6">
-            <button type="submit" class="btn btn-outline-primary mb-3" name="get_timetable" value="get_timetable">Get Timetable</button>
-          </div>
-          <div class="col-4">
-            <button type="submit" class="btn btn-outline-primary mb-3" name="get_outline" value="get_outline">Get Report</button>
+          <div class="form-row"></div>
+          <div class="col-3"></div>
+          <div class="col-5">
+            <button type="submit" class="btn btn-outline-primary mb-3 me-4" name="get_timetable" value="get_timetable">Timetable</button>
+            <button type="submit" class="btn btn-outline-primary mb-3 me-4" name="get_outline" value="get_outline">Report</button>
+            <button type="submit" class="btn btn-outline-primary mb-3 me-4" name="get_worksheet" value="get_worksheet">Worksheet</button>
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_guest" value="get_guest">Guest Lecture</button>
           </div>
     </form>
 
@@ -35,19 +37,21 @@
     <form action="/check_by_date" class="row g-3 text-center" method="POST">
         <div class="col-2"></div>
         <div class="col-2">
-          <button type="submit" class="btn btn-outline-primary mb-3" name="get_homework" value="get_homework">Get Homeworks</button>
+          <button type="submit" class="btn btn-outline-primary mb-3" name="get_homework" value="get_homework">Homeworks</button>
         </div>
         <div class="col-3">
             <input autocomplete="off" class="form-control" id="date" name="date" placeholder="Due Date" required type="date" value="{{ today }}">
           </div>
           <div class="col-2">
-            <button type="submit" class="btn btn-outline-primary mb-3" name="get_tests" value="get_tests">Get Tests</button>
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_tests" value="get_tests">Tests</button>
           </div>
-          <div class="col-6">
-            <button type="submit" class="btn btn-outline-primary mb-3" name="get_timetable" value="get_timetable">Get Timetable</button>
-          </div>
-          <div class="col-4">
-            <button type="submit" class="btn btn-outline-primary mb-3" name="get_outline" value="get_outline">Get Report</button>
+          <div class="form-row"></div>
+          <div class="col-3"></div>
+          <div class="col-5">
+            <button type="submit" class="btn btn-outline-primary mb-3 me-4" name="get_timetable" value="get_timetable">Timetable</button>
+            <button type="submit" class="btn btn-outline-primary mb-3 me-4" name="get_outline" value="get_outline">Report</button>
+            <button type="submit" class="btn btn-outline-primary mb-3 me-4" name="get_worksheet" value="get_worksheet">Worksheet</button>
+            <button type="submit" class="btn btn-outline-primary mb-3" name="get_guest" value="get_guest">Guest Lecture</button>
           </div>
     </form>
 {% endblock %}

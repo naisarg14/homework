@@ -12,6 +12,8 @@ grades_dict = {"9MWF": "Class 9 MWF",
                "neel": "Neel",
                "ansh": "Ansh",
                "sakshi": "Sakshi",
+               "vedant": "Vedant",
+               "dhiya": "Dhiya",
                }
 database = "homework.db"
 
@@ -51,15 +53,19 @@ def process_timetable(timetables):
         timetable["class_date"] = process_date(timetable["class_date"])
         timetable["start_time"] = process_time(timetable["start_time"])
         timetable["end_time"] = process_time(timetable["end_time"])
-    return timetable
+    return timetables
 
 def process_worksheet(worksheets):
     for worksheet in worksheets:
         worksheet["grade"] = grades_dict[worksheet["grade"]]
-        worksheet["given_date"] = process_date(worksheet["class_date"])
-        worksheet["start_time"] = process_time(worksheet["start_time"])
-        worksheet["end_time"] = process_time(worksheet["end_time"]):
+        worksheet["class_date"] = process_date(worksheet["class_date"])
     return worksheets
+
+def process_guest(guest_lecture):
+    for guest in guest_lecture:
+        guest["grade"] = grades_dict[guest["grade"]]
+        guest["date_given"] = process_date(guest["date_given"])
+    return guest_lecture
 
 
 def format_homework(id):
@@ -68,7 +74,7 @@ def format_homework(id):
     assignments = process_homework(assignments)
     assignment = assignments[0]
     title = "Homework Schedule"
-    schedule = f'Isucceed Coaching Class-Homework Schedule\nTitle: {assignment["title"]}\nClass: {assignment["grade"]}\nSubject: {assignment["subject"]}\nDescription: {assignment["description"]}\nDue Date: {assignment["due_date"]}\nBhawna Patel'
+    schedule = f'Isucceed Coaching Class-Homework Schedule\nTitle: {assignment["title"]}\nClass: {assignment["grade"]}\nSubject: {assignment["subject"]}\nDescription: {assignment["description"]}\nDue Date: {assignment["due_date"]}\nBhawna Teacher'
     return (title, schedule)
 
 def format_exam(id):
@@ -77,7 +83,7 @@ def format_exam(id):
     exams = process_exams(exams)
     exam = exams[0]
     title = "Exam Schedule"
-    schedule = f'Isucceed Coaching Class-Exam Schedule\nTitle: {exam["title"]}\nClass: {exam["grade"]}\nSubject: {exam["subject"]}\nPortion: {exam["portion"]}\nDate: {exam["exam_date"]}\nTime: {exam["exam_time"]}\nMarks: {exam["marks"]}\nBhawna Patel'
+    schedule = f'Isucceed Coaching Class-Exam Schedule\nTitle: {exam["title"]}\nClass: {exam["grade"]}\nSubject: {exam["subject"]}\nPortion: {exam["portion"]}\nDate: {exam["exam_date"]}\nTime: {exam["exam_time"]}\nMarks: {exam["marks"]}\nBhawna Teacher'
     return (title, schedule)
 
 def format_outline(id):
@@ -86,7 +92,7 @@ def format_outline(id):
     outlines = process_outline(outlines)
     outline = outlines[0]
     title = "Class Outline"
-    schedule = f'Isucceed Coaching Class-Class Outline\nTitle: {outline["title"]}\nClass: {outline["grade"]}\nSubject: {outline["subject"]}\nDescription: {outline["description"]}\nDate: {outline["class_date"]}\nBhawna Patel'
+    schedule = f'Isucceed Coaching Class-Class Outline\nTitle: {outline["title"]}\nClass: {outline["grade"]}\nSubject: {outline["subject"]}\nDescription: {outline["description"]}\nDate: {outline["class_date"]}\nBhawna Teacher'
     return (title, schedule)
 
 def format_timetable(id):
@@ -95,7 +101,7 @@ def format_timetable(id):
     timetables = process_timetable(timetables)
     timetable = timetables[0]
     title = "Class Schedule"
-    schedule = f'Isucceed Coaching Class-Class Schedule\nClass: {timetable["grade"]}\nSubject: {timetable["subject"]}\nDate: {timetable["class_date"]}\nTime: {timetable["start_time"]} - {timetable["end_time"]}\nBhawna Patel'
+    schedule = f'Isucceed Coaching Class-Class Schedule\nClass: {timetable["grade"]}\nSubject: {timetable["subject"]}\nDate: {timetable["class_date"]}\nTime: {timetable["start_time"]} - {timetable["end_time"]}\nBhawna Teacher'
     return (title, schedule)
 
 
@@ -105,6 +111,6 @@ def format_worksheet(id):
     worksheets = process_worksheet(worksheets)
     worksheet = worksheets[0]
     title = "Worksheet Issued"
-    schedule = f'Isucceed Coaching Class-Worksheet Record Schedule\nTitle: {"title"}\nClass: {worksheet["grade"]}\nSubject: {worksheet["subject"]}\nDate: {worksheet["given_date"]}\nTime: {worksheet["copies"]} - {worksheet["notes"]}\nBhawna Patel'
+    schedule = f'Isucceed Coaching Class-Worksheet Record Schedule\nTitle: {"title"}\nClass: {worksheet["grade"]}\nSubject: {worksheet["subject"]}\nDate: {worksheet["given_date"]}\nTime: {worksheet["copies"]} - {worksheet["notes"]}\nBhawna Teacher'
     return (title, schedule)
 
