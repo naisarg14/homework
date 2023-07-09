@@ -178,7 +178,7 @@
                                 <form action="/generate_message" method="POST">
                                     <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
                                     <input name="session" type="hidden" value="{{ session }}">
-                                    <button type="submit" class="btn btn-primary">Generate Message</button>
+                                    <button type="submit" class="btn btn-outline-primary">Generate Message</button>
                                 </form>
                                 <div class="me-2"></div>
                                 <form action="/add_timetable_event" method="POST">
@@ -190,7 +190,7 @@
                                 <form action="/delete_timetable" method="POST">
                                     <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
                                     <input name="session" type="hidden" value="{{ session }}">
-                                    <button type="submit" class="btn btn-primary">Delete</button>
+                                    <button type="submit" class="btn btn-outline-danger">Delete</button>
                                 </form>
                             </div>
                         </td>
@@ -228,7 +228,7 @@
                                 <form action="/generate_message" method="POST">
                                     <input name="id" type="hidden" value="{{ worksheet.worksheet_id }}">
                                     <input name="session" type="hidden" value="{{ session }}">
-                                    <button type="submit" class="btn btn-primary">Generate Message</button>
+                                    <button type="submit" class="btn btn-outline-primary">Generate Message</button>
                                 </form>
                                 <div class="me-2"></div>
                                 <form action="/add_worksheet_event" method="POST">
@@ -240,7 +240,7 @@
                                 <form action="/delete_worksheet" method="POST">
                                     <input name="id" type="hidden" value="{{ worksheet.worksheet_id }}">
                                     <input name="session" type="hidden" value="{{ session }}">
-                                    <button type="submit" class="btn btn-primary">Delete</button>
+                                    <button type="submit" class="btn btn-outline-danger">Delete</button>
                                 </form>
                             </div>
                         </td>
@@ -276,7 +276,7 @@
                                 <form action="/generate_message" method="POST">
                                     <input name="id" type="hidden" value="{{ guest.guest_id }}">
                                     <input name="session" type="hidden" value="{{ session }}">
-                                    <button type="submit" class="btn btn-primary">Generate Message</button>
+                                    <button type="submit" class="btn btn-outline-primary">Generate Message</button>
                                 </form>
                                 <div class="me-2"></div>
                                 <form action="/add_guest_event" method="POST">
@@ -288,7 +288,7 @@
                                 <form action="/delete_guest" method="POST">
                                     <input name="id" type="hidden" value="{{ guest.guest_id }}">
                                     <input name="session" type="hidden" value="{{ session }}">
-                                    <button type="submit" class="btn btn-primary">Delete</button>
+                                    <button type="submit" class="btn btn-outline-danger">Delete</button>
                                 </form>
                             </div>
                         </td>

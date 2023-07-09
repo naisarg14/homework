@@ -16,6 +16,7 @@ grades_dict = {"9MWF": "Class 9 MWF",
                "dhiya": "Dhiya",
                }
 database = "homework.db"
+name = "Bhawna Teacher"
 
 def process_time(time_str):
     time_obj = datetime.strptime(time_str, '%H:%M')
@@ -45,6 +46,7 @@ def process_outline(outlines):
     for outline in outlines:
         outline["grade"] = grades_dict[outline["grade"]]
         outline["class_date"] = process_date(outline["class_date"])
+        outline["time"] = process_time(outline["time"])
     return outlines
 
 def process_timetable(timetables):
@@ -74,7 +76,7 @@ def format_homework(id):
     assignments = process_homework(assignments)
     assignment = assignments[0]
     title = "Homework Schedule"
-    schedule = f'Isucceed Coaching Class-Homework Schedule\nTitle: {assignment["title"]}\nClass: {assignment["grade"]}\nSubject: {assignment["subject"]}\nDescription: {assignment["description"]}\nDue Date: {assignment["due_date"]}\nBhawna Teacher'
+    schedule = f'Isucceed Coaching Class-Homework Schedule\nTitle: {assignment["title"]}\nClass: {assignment["grade"]}\nSubject: {assignment["subject"]}\nDescription: {assignment["description"]}\nDue Date: {assignment["due_date"]}\n{name}'
     return (title, schedule)
 
 def format_exam(id):
@@ -83,7 +85,7 @@ def format_exam(id):
     exams = process_exams(exams)
     exam = exams[0]
     title = "Exam Schedule"
-    schedule = f'Isucceed Coaching Class-Exam Schedule\nTitle: {exam["title"]}\nClass: {exam["grade"]}\nSubject: {exam["subject"]}\nPortion: {exam["portion"]}\nDate: {exam["exam_date"]}\nTime: {exam["exam_time"]}\nMarks: {exam["marks"]}\nBhawna Teacher'
+    schedule = f'Isucceed Coaching Class-Exam Schedule\nTitle: {exam["title"]}\nClass: {exam["grade"]}\nSubject: {exam["subject"]}\nPortion: {exam["portion"]}\nDate: {exam["exam_date"]}\nTime: {exam["exam_time"]}\nMarks: {exam["marks"]}\n{name}'
     return (title, schedule)
 
 def format_outline(id):
@@ -92,7 +94,7 @@ def format_outline(id):
     outlines = process_outline(outlines)
     outline = outlines[0]
     title = "Class Outline"
-    schedule = f'Isucceed Coaching Class-Class Outline\nTitle: {outline["title"]}\nClass: {outline["grade"]}\nSubject: {outline["subject"]}\nDescription: {outline["description"]}\nDate: {outline["class_date"]}\nBhawna Teacher'
+    schedule = f'Isucceed Coaching Class-Class Outline\nTitle: {outline["title"]}\nClass: {outline["grade"]}Time: {outline["time"]}\nSubject: {outline["subject"]}\nDescription: {outline["description"]}\nDate: {outline["class_date"]}\n{name}'
     return (title, schedule)
 
 def format_timetable(id):
@@ -101,7 +103,7 @@ def format_timetable(id):
     timetables = process_timetable(timetables)
     timetable = timetables[0]
     title = "Class Schedule"
-    schedule = f'Isucceed Coaching Class-Class Schedule\nClass: {timetable["grade"]}\nSubject: {timetable["subject"]}\nDate: {timetable["class_date"]}\nTime: {timetable["start_time"]} - {timetable["end_time"]}\nBhawna Teacher'
+    schedule = f'Isucceed Coaching Class-Class Schedule\nClass: {timetable["grade"]}\nSubject: {timetable["subject"]}\nDate: {timetable["class_date"]}\nTime: {timetable["start_time"]} - {timetable["end_time"]}\n{name}'
     return (title, schedule)
 
 
@@ -111,6 +113,15 @@ def format_worksheet(id):
     worksheets = process_worksheet(worksheets)
     worksheet = worksheets[0]
     title = "Worksheet Issued"
-    schedule = f'Isucceed Coaching Class-Worksheet Record Schedule\nTitle: {"title"}\nClass: {worksheet["grade"]}\nSubject: {worksheet["subject"]}\nDate: {worksheet["given_date"]}\nTime: {worksheet["copies"]} - {worksheet["notes"]}\nBhawna Teacher'
+    schedule = f'Isucceed Coaching Class-Worksheet Record Schedule\nTitle: {worksheet["title"]}\nClass: {worksheet["grade"]}\nSubject: {worksheet["subject"]}\nDate: {worksheet["given_date"]}\nCopies: {worksheet["copies"]}\nNotes: {worksheet["notes"]}\n{name}'
     return (title, schedule)
 
+
+def format_guest(id):
+    db = SQL(f"sqlite:///{database}")
+    guests = db.execute("SELECT * FROM guest WHERE guest_id = ?", id)
+    guests = process_guest(guests)
+    guest = guests[0]
+    title = "Guest Lecture"
+    schedule = f'Isucceed Coaching Class-Guest Lecture\nTitle: {guest["title"]}\nClass: {guest["grade"]}\nSubject: {guest["subject"]}\nDate: {guest["date_given"]}\nDuration: {guest["duration"]}\nDescription: {guest["description"]}\n{name}'
+    return (title, schedule)

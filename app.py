@@ -1,6 +1,6 @@
 from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from cs50 import SQL
-#from flask_session import Session
+from flask_session import Session
 from datetime import datetime, timedelta
 import helpers
 import google_calander
@@ -16,7 +16,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-#Session(app)
+Session(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///homework.db")
@@ -63,7 +63,7 @@ publications = {"oswaal": "Oswaal Books",
 def create_table():
     db.execute("CREATE TABLE IF NOT EXISTS homework (homework_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, date_given DATE, due_date DATE, grade TEXT,subject TEXT, description TEXT, event_id TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS exam (exam_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, exam_date DATE, grade TEXT, exam_time TEXT, marks INTEGER, portion TEXT, subject TEXT, event_id TEXT)")
-    db.execute("CREATE TABLE IF NOT EXISTS outline (outline_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, class_date DATE, grade TEXT, description TEXT, subject TEXT, event_id TEXT, class_time TEXT)")
+    db.execute("CREATE TABLE IF NOT EXISTS outline (outline_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, class_date DATE, grade TEXT, description TEXT, subject TEXT, event_id TEXT, time TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS timetable (timetable_id INTEGER PRIMARY KEY AUTOINCREMENT, grade TEXT, subject TEXT, class_date DATE, start_time TEXT, end_time TEXT, event_id TEXT, description TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS worksheet (worksheet_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, given_date DATE, grade TEXT, subject TEXT, copies INTEGER, notes TEXT, publication TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS guest (guest_id INTEGER PRIMARY KEY AUTOINCREMENT, grade TEXT, date_given DATE, subject TEXT, duration TEXT, title TEXT, description TEXT)")
@@ -122,6 +122,8 @@ def delete_homework():
         assignments = db.execute("SELECT * FROM homework WHERE grade = ? ORDER BY due_date", session.removeprefix("GH"))
     if session[0] == "D":
         assignments = db.execute("SELECT * FROM homework WHERE due_date = ? ORDER BY grade", session.removeprefix("DH"))
+    if session[0] == "A":
+        assignments = db.execute("SELECT * FROM homework ORDER BY grade")
 
     assignments = helpers.process_homework(assignments)
 
@@ -166,15 +168,15 @@ def delete_exam():
 
     if session[0] == "G":
         assignments = db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date", session.removeprefix("GE"))
-        table = "exam"
     if session[0] == "D":
         assignments = db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY grade", session.removeprefix("DE"))
-        table = "exam"
+    if session[0] == "A":
+        assignments = db.execute("SELECT * FROM exam ORDER BY grade")
 
     assignments = helpers.process_exams(assignments)
 
     flash("Deleted Successfully!")
-    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+    return render_template('view_homework.html', assignments=assignments, table="exam", session=session)
 
 
 
@@ -192,9 +194,9 @@ def class_report():
         grade = request.form['grade']
         description = request.form['description']
         subject = request.form['subject']
-        class_time = request.form['class_time']
+        time = request.form['time']
 
-        id = db.execute("INSERT INTO outline (title, class_date, grade, description, subject, class_time) VALUES (?, ?, ?, ?, ?)", title, class_date, grade, description, subject, class_time)
+        id = db.execute("INSERT INTO outline (title, class_date, grade, description, subject, time) VALUES (?, ?, ?, ?, ?)", title, class_date, grade, description, subject, time)
         
         formatted_text = helpers.format_outline(id)
 
@@ -211,15 +213,15 @@ def delete_outline():
 
     if session[0] == "G":
         assignments = db.execute("SELECT * FROM outline WHERE grade = ? ORDER BY class_date", session.removeprefix("GO"))
-        table = "exam"
     if session[0] == "D":
         assignments = db.execute("SELECT * FROM outline WHERE class_date = ? ORDER BY grade", session.removeprefix("DO"))
-        table = "exam"
+    if session[0] == "A":
+        assignments = db.execute("SELECT * FROM outline ORDER BY grade")
 
     assignments = helpers.process_outline(assignments)
 
     flash("Deleted Successfully!")
-    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+    return render_template('view_homework.html', assignments=assignments, table="outline", session=session)
 
 
 #Generate Message
@@ -239,6 +241,12 @@ def generate_message():
 
     if session[1] == "T":
         formatted_text = helpers.format_timetable(id)
+    
+    if session[1] == "W":
+        formatted_text = helpers.format_worksheet(id)
+    
+    if session[1] == "L":
+        formatted_text = helpers.format_guest(id)
 
     return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
 
@@ -268,11 +276,6 @@ def check_homework_grade():
             table = "outline"
             session = f"GO{grade}"
         
-        if "get_timetable" in request.form:
-            assignments = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY class_date", grade))
-            table = "timetable"
-            session = f"GT{grade}"
-
         if "get_timetable" in request.form:
             assignments = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY class_date", grade))
             table = "timetable"
@@ -312,9 +315,18 @@ def check_by_date():
 
     if "get_timetable" in request.form:
         assignments = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", date))
-        print(assignments)
         table = "timetable"
         session = f"DT{date}"
+
+    if "get_worksheet" in request.form:
+        assignments = helpers.process_worksheet(db.execute("SELECT * FROM worksheet WHERE given_date = ? ORDER BY title", date))
+        table = "worksheet"
+        session = f"GW{date}"
+
+    if "get_guest" in request.form:
+        assignments = helpers.process_guest(db.execute("SELECT * FROM guest WHERE date_given = ? ORDER BY title", date))
+        table = "guest"
+        session = f"GL{date}"
 
     return render_template('view_homework.html', assignments=assignments, table=table, session=session)
 
@@ -325,10 +337,10 @@ def check_by_date():
 def timetable():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
-        timetable = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", today))
+        timetables = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", today))
         session = f"DT{today}"
 
-        return render_template("add_timetable.html", timetable=timetable, session=session, grades_dict=grades_dict, today=today)
+        return render_template("add_timetable.html", timetables=timetables, session=session, grades_dict=grades_dict, today=today)
 
     if request.method == "POST":
         grade = request.form["grade"]
@@ -342,7 +354,6 @@ def timetable():
         flash("Added Successfully!")
 
         return redirect("/timetable")
-    
 
 
 @app.route("/delete_timetable", methods=["POST"])
@@ -354,15 +365,15 @@ def delete_timetable():
 
     if session[0] == "G":
         assignments = db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY start_time", session.removeprefix("GT"))
-        table = "timetable"
     if session[0] == "D":
         assignments = db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", session.removeprefix("DT"))
-        table = "timetable"
+    if session[0] == "A":
+        assignments = db.execute("SELECT * FROM timetable ORDER BY start_time")
 
     assignments = helpers.process_timetable(assignments)
 
     flash("Deleted Successfully!")
-    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+    return render_template('view_homework.html', assignments=assignments, table="timetable", session=session)
 
 
 @app.route("/add_event", methods=["POST"])
@@ -386,6 +397,16 @@ def add_event():
     if session[1] == "T":
         timetable = db.execute("SELECT * FROM timetable WHERE timetable_id = ? ", id)
         timetable = helpers.process_timetable(timetable)
+
+    if session[1] == "W":  
+        worksheet = db.execute("SELECT * FROM worksheet WHERE worksheet_id = ? ", id)
+        worksheet = helpers.process_worksheet(worksheet)
+    
+    if session[1] == "L":
+        guest = db.execute("SELECT * FROM guest WHERE guest_id = ? ", id)
+        guest = helpers.process_guest(guest)
+        
+    #add worksheet and guest
 
 
 
@@ -413,6 +434,8 @@ def add_worksheet():
             formatted_text = helpers.format_worksheet(id)
             flash("Worksheet Issued Successfully!")
             return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+        
+#delete worksheet
 
 
 @app.route("/guest_lecture", methods=["GET", "POST"])
@@ -432,7 +455,7 @@ def guest_lecture():
         id = db.execute("INSERT INTO guest_lecture (grade, date_given, subject, duration, title, description) VALUES (?, ?, ?, ?, ?, ?)", grade, date_given, subject, duration, title, description)
 
         return redirect("/guest_lecture")
-
+#Delete guest lecture
 
 
 #Complete Lists
@@ -488,3 +511,5 @@ def full_guest():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+#add extra class
