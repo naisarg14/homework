@@ -63,7 +63,7 @@ publications = {"oswaal": "Oswaal Books",
 def create_table():
     db.execute("CREATE TABLE IF NOT EXISTS homework (homework_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, date_given DATE, due_date DATE, grade TEXT,subject TEXT, description TEXT, event_id TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS exam (exam_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, exam_date DATE, grade TEXT, exam_time TEXT, marks INTEGER, portion TEXT, subject TEXT, event_id TEXT)")
-    db.execute("CREATE TABLE IF NOT EXISTS outline (outline_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, class_date DATE, grade TEXT, description TEXT, subject TEXT, event_id TEXT)")
+    db.execute("CREATE TABLE IF NOT EXISTS outline (outline_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, class_date DATE, grade TEXT, description TEXT, subject TEXT, event_id TEXT, class_time TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS timetable (timetable_id INTEGER PRIMARY KEY AUTOINCREMENT, grade TEXT, subject TEXT, class_date DATE, start_time TEXT, end_time TEXT, event_id TEXT, description TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS worksheet (worksheet_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, given_date DATE, grade TEXT, subject TEXT, copies INTEGER, notes TEXT, publication TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS guest (guest_id INTEGER PRIMARY KEY AUTOINCREMENT, grade TEXT, date_given DATE, subject TEXT, duration TEXT, title TEXT, description TEXT)")
@@ -192,8 +192,9 @@ def class_report():
         grade = request.form['grade']
         description = request.form['description']
         subject = request.form['subject']
+        class_time = request.form['class_time']
 
-        id = db.execute("INSERT INTO outline (title, class_date, grade, description, subject) VALUES (?, ?, ?, ?, ?)", title, class_date, grade, description, subject)
+        id = db.execute("INSERT INTO outline (title, class_date, grade, description, subject, class_time) VALUES (?, ?, ?, ?, ?)", title, class_date, grade, description, subject, class_time)
         
         formatted_text = helpers.format_outline(id)
 
@@ -322,6 +323,13 @@ def check_by_date():
 # TIMETABLE
 @app.route("/timetable", methods=["GET", "POST"])
 def timetable():
+    if request.method == "GET":
+        today = datetime.now().date().isoformat()
+        timetable = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", today))
+        session = f"DT{today}"
+
+        return render_template("add_timetable.html", timetable=timetable, session=session, grades_dict=grades_dict, today=today)
+
     if request.method == "POST":
         grade = request.form["grade"]
         subject = request.form["subject"]
@@ -330,16 +338,11 @@ def timetable():
         end_time = request.form["end_time"]
         description = request.form['description']
 
-
         db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description) VALUES (?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description)
         flash("Added Successfully!")
 
-
-    today = datetime.now().date().isoformat()
-    timetable = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", today))
-    session = f"DT{today}"
-
-    return render_template("add_timetable.html", timetable=timetable, session=session, grades_dict=grades_dict, today=today)
+        return redirect("/timetable")
+    
 
 
 @app.route("/delete_timetable", methods=["POST"])
@@ -485,8 +488,3 @@ def full_guest():
 @app.route("/about")
 def about():
     return render_template("about.html")
-
-
-
-#add time in report
-#add description in time table
