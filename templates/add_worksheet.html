@@ -7,8 +7,8 @@
 <h2 class="text-center">Worksheet</h2>
 <form action="/add_worksheet" class="row g-3" method="POST">
     <div class="col-2">
-        <label for="grade">Select Publication</label>
-        <input autofocus class="form-control" list="datalistOptions" id="grade" name="grade" placeholder="Type to search...">
+        <label for="publication">Select Publication</label>
+        <input autofocus class="form-control" list="datalistOptions" id="publication" name="publication" placeholder="Type to search...">
             <datalist id="datalistOptions">
                 {% for publication in publications %}
                     <option value="{{ publications[publication] }}">

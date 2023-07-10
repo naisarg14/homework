@@ -353,6 +353,14 @@ def timetable():
         db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description) VALUES (?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description)
         flash("Added Successfully!")
 
+        if "add_new" in request.form:
+            return redirect("/timetable")
+        
+        if "add_message" in request.form:
+            formatted_text = helpers.format_timetable(id)
+            flash("Class Added Successfully!")
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+        
         return redirect("/timetable")
 
 
@@ -406,7 +414,7 @@ def add_event():
         guest = db.execute("SELECT * FROM guest WHERE guest_id = ? ", id)
         guest = helpers.process_guest(guest)
         
-    #add worksheet and guest
+    ##add backend for events
 
 
 
@@ -435,7 +443,25 @@ def add_worksheet():
             flash("Worksheet Issued Successfully!")
             return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
         
-#delete worksheet
+
+@app.route("/delete_worksheet", methods=["POST"])
+def delete_worksheet():
+    worksheet_id = request.form["id"]
+    session = request.form["session"]
+
+    db.execute("DELETE FROM worksheet WHERE worksheet_id = ?", worksheet_id)
+
+    if session[0] == "G":
+        assignments = db.execute("SELECT * FROM worksheet WHERE grade = ? ORDER BY start_time", session.removeprefix("GW"))
+    if session[0] == "D":
+        assignments = db.execute("SELECT * FROM worksheet WHERE class_date = ? ORDER BY start_time", session.removeprefix("DW"))
+    if session[0] == "A":
+        assignments = db.execute("SELECT * FROM worksheet ORDER BY start_time")
+
+    assignments = helpers.process_worksheet(assignments)
+
+    flash("Deleted Successfully!")
+    return render_template('view_homework.html', assignments=assignments, table="worksheet", session=session)
 
 
 @app.route("/guest_lecture", methods=["GET", "POST"])
@@ -455,7 +481,50 @@ def guest_lecture():
         id = db.execute("INSERT INTO guest_lecture (grade, date_given, subject, duration, title, description) VALUES (?, ?, ?, ?, ?, ?)", grade, date_given, subject, duration, title, description)
 
         return redirect("/guest_lecture")
-#Delete guest lecture
+
+
+@app.route("/delete_guest", methods=["POST"])
+def delete_guest():
+    guest_id = request.form["id"]
+    session = request.form["session"]
+
+    db.execute("DELETE FROM guest WHERE guest_id = ?", guest_id)
+
+    if session[0] == "G":
+        assignments = db.execute("SELECT * FROM guest WHERE grade = ? ORDER BY start_time", session.removeprefix("GL"))
+    if session[0] == "D":
+        assignments = db.execute("SELECT * FROM guest WHERE class_date = ? ORDER BY start_time", session.removeprefix("DL"))
+    if session[0] == "A":
+        assignments = db.execute("SELECT * FROM guest ORDER BY start_time")
+
+    assignments = helpers.process_guest(assignments)
+
+    flash("Deleted Successfully!")
+    return render_template('view_homework.html', assignments=assignments, table="guest", session=session)
+
+
+
+@app.route("/extra_class", methods=["GET", "POST"])
+def extra_class():
+    if request.method == "GET":
+        today = datetime.now().date().isoformat()
+        timetables = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", today))
+        session = f"DT{today}"
+
+        return render_template("add_extra_class.html", timetables=timetables, session=session, grades_dict=grades_dict, today=today)
+
+    if request.method == "POST":
+        grade = request.form["grade"]
+        subject = request.form["subject"]
+        class_date = request.form["class_date"]
+        start_time = request.form["start_time"]
+        end_time = request.form["end_time"]
+        description = request.form['description']
+
+        db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description) VALUES (?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description)
+        flash("Added Successfully!")
+
+        return redirect("/extra_class")
 
 
 #Complete Lists
@@ -512,4 +581,4 @@ def full_guest():
 def about():
     return render_template("about.html")
 
-#add extra class
+##add extra class
