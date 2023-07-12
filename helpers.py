@@ -19,14 +19,22 @@ database = "homework.db"
 name = "Bhawna Teacher"
 
 def process_time(time_str):
-    time_obj = datetime.strptime(time_str, '%H:%M')
-    formatted_time = time_obj.strftime('%I:%M %p')
-    return formatted_time
+    try:
+        time_obj = datetime.strptime(time_str, '%H:%M')
+        formatted_time = time_obj.strftime('%I:%M %p')
+        return formatted_time
+    except:
+        pass    
+    return "None"
 
 def process_date(date_str):
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d %B %Y")
-    return formatted_date
+    try:
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d %B %Y")
+        return formatted_date
+    except:
+        pass
+    return "None"
 
 def process_homework(assignments):
     for assignment in assignments:

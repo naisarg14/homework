@@ -137,7 +137,7 @@ def schedule_test():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
 
-        return render_template("schedule_test.html", grades_dict=grades_dict, today=today)
+        return render_template("add_test.html", grades_dict=grades_dict, today=today)
 
     if request.method == "POST":
         title = request.form['title'].title()
@@ -521,6 +521,8 @@ def extra_class():
         end_time = request.form["end_time"]
         description = request.form['description']
 
+        grade = grade + "(EC)"
+
         db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description) VALUES (?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description)
         flash("Added Successfully!")
 
@@ -554,7 +556,7 @@ def full_report():
 
 @app.route("/full_timetable")
 def full_timetable():
-    assignments = db.execute("SELECT * FROM timetable ORDER BY class_date")
+    assignments = db.execute("SELECT * FROM timetable ORDER BY class_date DESC, start_time")
     assignments = helpers.process_timetable(assignments)
     table = "timetable"
     session = "AT"
@@ -581,4 +583,6 @@ def full_guest():
 def about():
     return render_template("about.html")
 
-##add extra class
+
+##button in test for done and cancelled
+##edit button (homework, outline, test, timetable, worksheet, extra class)
