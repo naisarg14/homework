@@ -1,62 +1,64 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    View Homework
+    View Worksheet
 {% endblock %}
 {% block main %}
-    <h2 class="text-center">Assignments</h2>
+    <h2 class="text-center">Worksheet Issued</h2>
         <table class="text-center table table-success table-hover table-bordered border-success align-middle">
             <thead>
                 <tr class="table-danger table-bordered border-success align-middle">
+                    <th>Publication</th>
                     <th>Title</th>
-                    <th>Date Given</th>
-                    <th>Due Date</th>
-                    <th>Grade</th>
+                    <th>Given On</th>
+                    <th>Class</th>
                     <th>Subject</th>
-                    <th>Description</th>
+                    <th>Copies</th>
+                    <th>Notes</th>
                     <th>More</th>
                 </tr>
             </thead>
             <tbody class="table-group-divider align-middle">
-                {% for assignment in assignments %}
+                {% for worksheet in worksheets %}
                     <tr>
-                        <td>{{ assignment.title }}</td>
-                        <td>{{ assignment.date_given }}</td>
-                        <td>{{ assignment.due_date }}</td>
-                        <td>{{ assignment.grade }}</td>
-                        <td>{{ assignment.subject }}</td>
-                        <td>{{ assignment.description }}</td>
+                        <td>{{ worksheet.publication }}</td>
+                        <td>{{ worksheet.title }}</td>
+                        <td>{{ worksheet.given_date }}</td>
+                        <td>{{ worksheet.grade }}</td>
+                        <td>{{ worksheet.subject }}</td>
+                        <td>{{ worksheet.copies }}</td>
+                        <td>{{ worksheet.notes }}</td>
                         <td>
                             <div class="dropdown align-self-center">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
                                 <ul class="dropdown-menu text-center">
                                     <li>
                                         <form action="/generate_message" method="POST">
-                                            <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                            <input name="id" type="hidden" value="{{ worksheet.worksheet_id }}">
                                             <input name="session" type="hidden" value="{{ session }}">
                                             <button type="submit" class="btn btn-outline-primary">Generate Message</button>
                                         </form>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <form action="/add_event" method="POST">
-                                            <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                        <form action="/add_worksheet_event" method="POST">
+                                            <input name="id" type="hidden" value="{{ worksheet.worksheet_id }}">
                                             <input name="session" type="hidden" value="{{ session }}">
                                             <button type="submit" class="btn btn-outline-success">Add Event</button>
                                         </form>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <form action="/edit_homework" method="POST">
-                                            <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                        <form action="/edit_worksheet" method="POST">
+                                            <input name="id" type="hidden" value="{{ worksheet.worksheet_id }}">
                                             <input name="session" type="hidden" value="{{ session }}">
                                             <button type="submit" class="btn btn-outline-warning">Edit</button>
                                         </form>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <form action="/delete_homework" method="POST">
-                                            <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                        <form action="/delete_worksheet" method="POST">
+                                            <input name="id" type="hidden" value="{{ worksheet.worksheet_id }}">
                                             <input name="session" type="hidden" value="{{ session }}">
                                             <button type="submit" class="btn btn-outline-danger">Delete</button>
                                         </form>

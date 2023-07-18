@@ -6,28 +6,70 @@
 
 {% block main %}
     <h2 class="text-center">Today's Classes</h2>
-        <table class="text-center table table-info table-hover table-bordered border-primary align-middle">
-            <thead>
-                <tr class="table-primary table-bordered border-primary align-middle">
-                    <th>Class</th>
-                    <th>Subject</th>
-                    <th>Date</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
+    <table class="text-center table table-info table-hover table-bordered border-success align-middle">
+        <thead>
+            <tr class="table-primary table-bordered border-primary align-middle">
+                <th>Class</th>
+                <th>Subject</th>
+                <th>Date</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Description</th>
+                <th>More</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider align-middle">
+            {% for timetable in timetables %}
+                <tr>
+                    <td>{{ timetable.grade }}</td>
+                    <td>{{ timetable.subject }}</td>
+                    <td>{{ timetable.class_date }}</td>
+                    <td>{{ timetable.start_time }}</td>
+                    <td>{{ timetable.end_time }}</td>
+                    <td>{{ timetable.description }}</td>
+                    <td>
+                        <div class="dropdown align-self-center">
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                            <ul class="dropdown-menu text-center">
+                                <li>
+                                    <form action="/generate_message" method="POST">
+                                        <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-primary me-2">Generate Message</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/add_event" method="POST">
+                                        <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-success">Add Event</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/edit_timetable" method="POST">
+                                        <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-warning">Edit</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/delete_timetable" method="POST">
+                                        <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    
+                    </td>
                 </tr>
-            </thead>
-            <tbody class="table-group-divider align-middle">
-                {% for temp in timetable %}
-                    <tr>
-                        <td>{{ temp.grade }}</td>
-                        <td>{{ temp.subject }}</td>
-                        <td>{{ temp.class_date }}</td>
-                        <td>{{ temp.start_time }}</td>
-                        <td>{{ temp.end_time }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            {% endfor %}
+        </tbody>
+    </table>
     
     <br>
 
@@ -38,80 +80,198 @@
                 <th>Title</th>
                 <th>Date Given</th>
                 <th>Due Date</th>
-                <th>Class</th>
+                <th>Grade</th>
                 <th>Subject</th>
                 <th>Description</th>
+                <th>More</th>
             </tr>
         </thead>
         <tbody class="table-group-divider align-middle">
             {% for assignment in assignments %}
-            <tr>
-                <td>{{ assignment.title }}</td>
-                <td>{{ assignment.date_given }}</td>
-                <td>{{ assignment.due_date }}</td>
-                <td>{{ assignment.grade }}</td>
-                <td>{{ assignment.subject }}</td>
-                <td>{{ assignment.description }}</td>
-            </tr>
+                <tr>
+                    <td>{{ assignment.title }}</td>
+                    <td>{{ assignment.date_given }}</td>
+                    <td>{{ assignment.due_date }}</td>
+                    <td>{{ assignment.grade }}</td>
+                    <td>{{ assignment.subject }}</td>
+                    <td>{{ assignment.description }}</td>
+                    <td>
+                        <div class="dropdown align-self-center">
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                            <ul class="dropdown-menu text-center">
+                                <li>
+                                    <form action="/generate_message" method="POST">
+                                        <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-primary">Generate Message</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/add_event" method="POST">
+                                        <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-success">Add Event</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/edit_homework" method="POST">
+                                        <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-warning">Edit</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/delete_homework" method="POST">
+                                        <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
 
     <br>
+
     <h2 class="text-center">Exams Sheduled Today</h2>
-    <table class="text-center table table-hover table-success table-bordered border-success align-middle">
-        <thead>
-            <tr class="table-primary table-bordered border-primary align-middle">
-                <th>Title</th>
-                <th>Class</th>
-                <th>Exam Date</th>
-                <th>Exam Time</th>
-                <th>Marks</th>
-                <th>Subject</th>
-                <th>Portion</th>
-            </tr>
-        </thead>
-        <tbody class="table-group-divider align-middle">
-            {% for exam in exams %}
-            <tr>
-                <td>{{ exam.title }}</td>
-                <td>{{ exam.grade }}</td>
-                <td>{{ exam.exam_date }}</td>
-                <td>{{ exam.exam_time }}</td>
-                <td>{{ exam.marks }}</td>
-                <td>{{ exam.subject }}</td>
-                <td>{{ exam.portion }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <table class="text-center table table-success table-hover table-bordered border-success align-middle">
+            <thead>
+                <tr class="table-primary table-bordered border-primary align-middle">
+                    <th>Title</th>
+                    <th>Class</th>
+                    <th>Exam Date</th>
+                    <th>Exam Time</th>
+                    <th>Marks</th>
+                    <th>Subject</th>
+                    <th>Portion</th>
+                    <th>More</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider align-middle">
+                {% for exam in exams %}
+                <tr>
+                    <td>{{ exam.title }}</td>
+                    <td>{{ exam.grade }}</td>
+                    <td>{{ exam.exam_date }}</td>
+                    <td>{{ exam.exam_time }}</td>
+                    <td>{{ exam.marks }}</td>
+                    <td>{{ exam.subject }}</td>
+                    <td>{{ exam.portion }}</td>
+                    <td>
+                        <div class="dropdown align-self-center">
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                            <ul class="dropdown-menu text-center">
+                                <li>
+                                    <form action="/generate_message" method="POST">
+                                        <input name="id" type="hidden" value="{{ exam.exam_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-primary">Generate Message</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/add_event" method="POST">
+                                        <input name="id" type="hidden" value="{{ exam.exam_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-success">Add Event</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/edit_exam" method="POST">
+                                        <input name="id" type="hidden" value="{{ exam.exam_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-warning">Edit</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/delete_exam" method="POST">
+                                        <input name="id" type="hidden" value="{{ exam.exam_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
     <br>
     <h2 class="text-center">Exams Sheduled Tomorrow</h2>
-    <table class="text-center table table-danger table-hover table-bordered border-danger align-middle">
-        <thead>
-            <tr class="table-primary table-bordered border-primary align-middle">
-                <th>Title</th>
-                <th>Class</th>
-                <th>Exam Date</th>
-                <th>Exam Time</th>
-                <th>Marks</th>
-                <th>Subject</th>
-                <th>Portion</th>
-            </tr>
-        </thead>
-        <tbody class="table-group-divider align-middle">
-            {% for exam in tomorrow_exams %}
-            <tr>
-                <td>{{ exam.title }}</td>
-                <td>{{ exam.grade }}</td>
-                <td>{{ exam.exam_date }}</td>
-                <td>{{ exam.exam_time }}</td>
-                <td>{{ exam.marks }}</td>
-                <td>{{ exam.subject }}</td>
-                <td>{{ exam.portion }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <table class="text-center table table-success table-hover table-bordered border-success align-middle">
+            <thead>
+                <tr class="table-primary table-bordered border-primary align-middle">
+                    <th>Title</th>
+                    <th>Class</th>
+                    <th>Exam Date</th>
+                    <th>Exam Time</th>
+                    <th>Marks</th>
+                    <th>Subject</th>
+                    <th>Portion</th>
+                    <th>More</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider align-middle">
+                {% for exam in exams %}
+                <tr>
+                    <td>{{ exam.title }}</td>
+                    <td>{{ exam.grade }}</td>
+                    <td>{{ exam.exam_date }}</td>
+                    <td>{{ exam.exam_time }}</td>
+                    <td>{{ exam.marks }}</td>
+                    <td>{{ exam.subject }}</td>
+                    <td>{{ exam.portion }}</td>
+                    <td>
+                        <div class="dropdown align-self-center">
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                            <ul class="dropdown-menu text-center">
+                                <li>
+                                    <form action="/generate_message" method="POST">
+                                        <input name="id" type="hidden" value="{{ exam.exam_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-primary">Generate Message</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/add_event" method="POST">
+                                        <input name="id" type="hidden" value="{{ exam.exam_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-success">Add Event</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/edit_exam" method="POST">
+                                        <input name="id" type="hidden" value="{{ exam.exam_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-warning">Edit</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/delete_exam" method="POST">
+                                        <input name="id" type="hidden" value="{{ exam.exam_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 {% endblock %}

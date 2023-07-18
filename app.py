@@ -79,9 +79,9 @@ def index():
     assignments = helpers.process_homework(db.execute("SELECT * FROM homework WHERE due_date = ? ORDER BY grade", today))
     exams = helpers.process_exams(db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY exam_time", today))
     tomorrow_exams = helpers.process_exams(db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY exam_time", tomorrow))
-    timetable = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", today))
+    timetables = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", today))
 
-    return render_template('index.html', assignments=assignments, exams=exams, tomorrow_exams=tomorrow_exams, timetable=timetable)
+    return render_template('index.html', assignments=assignments, exams=exams, tomorrow_exams=tomorrow_exams, timetables=timetables)
 
 
 #Add Homework
@@ -167,16 +167,16 @@ def delete_exam():
     db.execute("DELETE FROM exam WHERE exam_id = ?", exam_id)
 
     if session[0] == "G":
-        assignments = db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date", session.removeprefix("GE"))
+        exams = db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date", session.removeprefix("GE"))
     if session[0] == "D":
-        assignments = db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY grade", session.removeprefix("DE"))
+        exams = db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY grade", session.removeprefix("DE"))
     if session[0] == "A":
-        assignments = db.execute("SELECT * FROM exam ORDER BY grade")
+        exams = db.execute("SELECT * FROM exam ORDER BY grade")
 
-    assignments = helpers.process_exams(assignments)
+    exams = helpers.process_exams(exams)
 
     flash("Deleted Successfully!")
-    return render_template('view_homework.html', assignments=assignments, table="exam", session=session)
+    return render_template('view_exam.html', exams=exams, table="exam", session=session)
 
 
 
@@ -212,16 +212,16 @@ def delete_outline():
     db.execute("DELETE FROM outline WHERE outline_id = ?", outline_id)
 
     if session[0] == "G":
-        assignments = db.execute("SELECT * FROM outline WHERE grade = ? ORDER BY class_date", session.removeprefix("GO"))
+        outlines = db.execute("SELECT * FROM outline WHERE grade = ? ORDER BY class_date", session.removeprefix("GO"))
     if session[0] == "D":
-        assignments = db.execute("SELECT * FROM outline WHERE class_date = ? ORDER BY grade", session.removeprefix("DO"))
+        outlines = db.execute("SELECT * FROM outline WHERE class_date = ? ORDER BY grade", session.removeprefix("DO"))
     if session[0] == "A":
-        assignments = db.execute("SELECT * FROM outline ORDER BY grade")
+        outlines = db.execute("SELECT * FROM outline ORDER BY grade")
 
-    assignments = helpers.process_outline(assignments)
+    outlines = helpers.process_outline(outlines)
 
     flash("Deleted Successfully!")
-    return render_template('view_homework.html', assignments=assignments, table="outline", session=session)
+    return render_template('view_outline.html', outlines=outlines, table="outline", session=session)
 
 
 #Generate Message
@@ -256,42 +256,43 @@ def generate_message():
 def check_homework_grade():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
-        return render_template("get_homework.html", grades_dict=grades_dict, today=today)
+        return render_template("check_database.html", grades_dict=grades_dict, today=today)
 
     if request.method == 'POST':
         grade = request.form["grade"]
 
         if "get_homework" in request.form:
             assignments = helpers.process_homework(db.execute("SELECT * FROM homework WHERE grade = ? ORDER BY due_date", grade))
-            table = "homework"
             session = f"GH{grade}"
+            return render_template('view_homework.html', assignments=assignments, session=session)
         
         if "get_tests" in request.form:
-            assignments = helpers.process_exams(db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date", grade))
-            table = "exam"
+            exams = helpers.process_exams(db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date", grade))
             session = f"GE{grade}"
+            return render_template('view_exam.html', exams=exams, session=session)
         
         if "get_outline" in request.form:
-            assignments = helpers.process_outline(db.execute("SELECT * FROM outline WHERE grade = ? ORDER BY class_date", grade))
-            table = "outline"
+            outlines = helpers.process_outline(db.execute("SELECT * FROM outline WHERE grade = ? ORDER BY class_date", grade))
             session = f"GO{grade}"
+            return render_template('view_outline.html', outlines=outlines,session=session)
         
         if "get_timetable" in request.form:
-            assignments = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY class_date", grade))
-            table = "timetable"
+            timetables = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY class_date", grade))
             session = f"GT{grade}"
+            return render_template('view_timetable.html', timetables=timetables, session=session)
         
         if "get_worksheet" in request.form:
-            assignments = helpers.process_worksheet(db.execute("SELECT * FROM worksheet WHERE grade = ? ORDER BY given_date", grade))
-            table = "worksheet"
+            worksheets = helpers.process_worksheet(db.execute("SELECT * FROM worksheet WHERE grade = ? ORDER BY given_date", grade))
             session = f"GW{grade}"
+            return render_template('view_worksheet.html', worksheets=worksheets, session=session)
 
         if "get_guest" in request.form:
-            assignments = helpers.process_guest(db.execute("SELECT * FROM guest WHERE grade = ? ORDER BY date_given", grade))
-            table = "guest"
+            guests = helpers.process_guest(db.execute("SELECT * FROM guest WHERE grade = ? ORDER BY date_given", grade))
             session = f"GL{grade}"
+            return render_template('view_guest.html', guests=guests, session=session)
 
-        return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+        flash("Error, check VS Code for reason.")
+        return redirect("/check_by_grade")
 
 
 @app.route('/check_by_date', methods=['POST'])
@@ -300,35 +301,36 @@ def check_by_date():
 
     if "get_homework" in request.form:
         assignments = helpers.process_homework(db.execute("SELECT * FROM homework WHERE due_date = ? ORDER BY grade", date))
-        table = "homework"
         session = f"DH{date}"
+        return render_template('view_homework.html', assignments=assignments, session=session)
 
     if "get_tests" in request.form:
-        assignments = helpers.process_exams(db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY exam_time", date))
-        table = "exam"
+        exams = helpers.process_exams(db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY exam_time", date))
         session = f"DE{date}"
+        return render_template('view_exam.html', exams=exams, session=session)
 
     if "get_outline" in request.form:
-        assignments = helpers.process_outline(db.execute("SELECT * FROM outline WHERE class_date = ? ORDER BY grade", date))
-        table = "outline"
+        outlines = helpers.process_outline(db.execute("SELECT * FROM outline WHERE class_date = ? ORDER BY grade", date))
         session = f"DO{date}"
+        return render_template('view_outline.html', outlines=outlines,session=session)
 
     if "get_timetable" in request.form:
-        assignments = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", date))
-        table = "timetable"
+        timetables = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", date))
         session = f"DT{date}"
+        return render_template('view_timetable.html', timetables=timetables, session=session)
 
     if "get_worksheet" in request.form:
-        assignments = helpers.process_worksheet(db.execute("SELECT * FROM worksheet WHERE given_date = ? ORDER BY title", date))
-        table = "worksheet"
+        worksheets = helpers.process_worksheet(db.execute("SELECT * FROM worksheet WHERE given_date = ? ORDER BY title", date))
         session = f"GW{date}"
+        return render_template('view_worksheet.html', worksheets=worksheets, session=session)
 
     if "get_guest" in request.form:
-        assignments = helpers.process_guest(db.execute("SELECT * FROM guest WHERE date_given = ? ORDER BY title", date))
-        table = "guest"
+        guests = helpers.process_guest(db.execute("SELECT * FROM guest WHERE date_given = ? ORDER BY title", date))
         session = f"GL{date}"
+        return render_template('view_guest.html', guests=guests, session=session)
 
-    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+    flash("Error, check VS Code for reason.")
+    return redirect("/check_by_grade")
 
 
 
@@ -372,16 +374,16 @@ def delete_timetable():
     db.execute("DELETE FROM timetable WHERE timetable_id = ?", timetable_id)
 
     if session[0] == "G":
-        assignments = db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY start_time", session.removeprefix("GT"))
+        timetables = db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY start_time", session.removeprefix("GT"))
     if session[0] == "D":
-        assignments = db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", session.removeprefix("DT"))
+        timetables = db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", session.removeprefix("DT"))
     if session[0] == "A":
-        assignments = db.execute("SELECT * FROM timetable ORDER BY start_time")
+        timetables = db.execute("SELECT * FROM timetable ORDER BY start_time")
 
-    assignments = helpers.process_timetable(assignments)
+    timetables = helpers.process_timetable(timetables)
 
     flash("Deleted Successfully!")
-    return render_template('view_homework.html', assignments=assignments, table="timetable", session=session)
+    return render_template('view_timetable.html', timetables=timetables, session=session)
 
 
 @app.route("/add_event", methods=["POST"])
@@ -452,16 +454,16 @@ def delete_worksheet():
     db.execute("DELETE FROM worksheet WHERE worksheet_id = ?", worksheet_id)
 
     if session[0] == "G":
-        assignments = db.execute("SELECT * FROM worksheet WHERE grade = ? ORDER BY start_time", session.removeprefix("GW"))
+        worksheets = db.execute("SELECT * FROM worksheet WHERE grade = ? ORDER BY start_time", session.removeprefix("GW"))
     if session[0] == "D":
-        assignments = db.execute("SELECT * FROM worksheet WHERE class_date = ? ORDER BY start_time", session.removeprefix("DW"))
+        worksheets = db.execute("SELECT * FROM worksheet WHERE class_date = ? ORDER BY start_time", session.removeprefix("DW"))
     if session[0] == "A":
-        assignments = db.execute("SELECT * FROM worksheet ORDER BY start_time")
+        worksheets = db.execute("SELECT * FROM worksheet ORDER BY start_time")
 
-    assignments = helpers.process_worksheet(assignments)
+    worksheets = helpers.process_worksheet(worksheets)
 
     flash("Deleted Successfully!")
-    return render_template('view_homework.html', assignments=assignments, table="worksheet", session=session)
+    return render_template('view_worksheet.html', worksheets=worksheets, table="worksheet", session=session)
 
 
 @app.route("/guest_lecture", methods=["GET", "POST"])
@@ -491,16 +493,16 @@ def delete_guest():
     db.execute("DELETE FROM guest WHERE guest_id = ?", guest_id)
 
     if session[0] == "G":
-        assignments = db.execute("SELECT * FROM guest WHERE grade = ? ORDER BY start_time", session.removeprefix("GL"))
+        guests = db.execute("SELECT * FROM guest WHERE grade = ? ORDER BY start_time", session.removeprefix("GL"))
     if session[0] == "D":
-        assignments = db.execute("SELECT * FROM guest WHERE class_date = ? ORDER BY start_time", session.removeprefix("DL"))
+        guests = db.execute("SELECT * FROM guest WHERE class_date = ? ORDER BY start_time", session.removeprefix("DL"))
     if session[0] == "A":
-        assignments = db.execute("SELECT * FROM guest ORDER BY start_time")
+        guests = db.execute("SELECT * FROM guest ORDER BY start_time")
 
-    assignments = helpers.process_guest(assignments)
+    guests = helpers.process_guest(guests)
 
     flash("Deleted Successfully!")
-    return render_template('view_homework.html', assignments=assignments, table="guest", session=session)
+    return render_template('view_guest.html', guests=guests, table="guest", session=session)
 
 
 
@@ -540,43 +542,43 @@ def full_homework():
 
 @app.route("/full_exam")
 def full_exam():
-    assignments  = db.execute("SELECT * FROM exam ORDER BY exam_date")
-    assignments = helpers.process_exams(assignments)
+    exams  = db.execute("SELECT * FROM exam ORDER BY exam_date")
+    exams = helpers.process_exams(exams)
     table = "exam"
     session = "AE"
-    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+    return render_template('view_exam.html', exams=exams, table=table, session=session)
 
 @app.route("/full_report")
 def full_report():
-    assignments = db.execute("SELECT * FROM outline ORDER BY class_date")
-    assignments = helpers.process_outline(assignments)
+    outlines = db.execute("SELECT * FROM outline ORDER BY class_date")
+    outlines = helpers.process_outline(outlines)
     table = "outline"
     session = "AO"
-    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+    return render_template('view_outline.html', outlines=outlines, table=table, session=session)
 
 @app.route("/full_timetable")
 def full_timetable():
-    assignments = db.execute("SELECT * FROM timetable ORDER BY class_date DESC, start_time")
-    assignments = helpers.process_timetable(assignments)
+    timetables = db.execute("SELECT * FROM timetable ORDER BY class_date DESC, start_time")
+    timetables = helpers.process_timetable(timetables)
     table = "timetable"
     session = "AT"
-    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+    return render_template('view_timetable.html', timetables=timetables, table=table, session=session)
 
 @app.route("/full_worksheet")
 def full_worksheey():
-    assignments = db.execute("SELECT * FROM worksheet ORDER BY given_date")
-    assignments = helpers.process_worksheet(assignments)
+    worksheets = db.execute("SELECT * FROM worksheet ORDER BY given_date")
+    worksheets = helpers.process_worksheet(worksheets)
     table = "worksheet"
     session = "AW"
-    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+    return render_template('view_worksheet.html', worksheets=worksheets, table=table, session=session)
 
 @app.route("/full_guest")
 def full_guest():
-    assignments = db.execute("SELECT * FROM guest ORDER BY date_given")
-    assignments = helpers.process_guest(assignments)
+    guests = db.execute("SELECT * FROM guest ORDER BY date_given")
+    guests = helpers.process_guest(guests)
     table = "guest"
     session = "AL"
-    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+    return render_template('view_guest.html', guests=guests, table=table, session=session)
 
 
 @app.route("/about")

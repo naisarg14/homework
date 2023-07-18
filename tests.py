@@ -8,12 +8,17 @@ conn2 = sqlite3.connect('homework2.db')
 cursor1 = conn1.cursor()
 cursor2 = conn2.cursor()
 
-cursor2.execute('SELECT * FROM worksheet')
-rows = cursor2.fetchall()
+for table in ["homework", "exam", "outline", "timetable", "guest", "worksheet"]:
+    cursor2.execute('SELECT * FROM ?', table)
+    rows = cursor2.fetchall()
 
-for row in rows:
-    #row = row + ("none", )
-    cursor1.execute('INSERT OR IGNORE INTO worksheet VALUES (?, ?, ?, ?, ?, ?, ?, ?)', row)
+    for row in rows:
+        try:
+            cursor1.execute('INSERT OR IGNORE INTO ? VALUES (?, ?, ?, ?, ?, ?, ?, ?)', table, row)
+        except:
+            row = row + ("none", )
+            cursor1.execute('INSERT OR IGNORE INTO ? VALUES (?, ?, ?, ?, ?, ?, ?, ?)', table, row)
+
 
 conn1.commit()
 conn2.close()

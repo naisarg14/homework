@@ -1,38 +1,38 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    View Homework
+    View Guest Lectures
 {% endblock %}
 {% block main %}
-    <h2 class="text-center">Assignments</h2>
+    <h2 class="text-center">Guest Lectures</h2>
         <table class="text-center table table-success table-hover table-bordered border-success align-middle">
             <thead>
                 <tr class="table-danger table-bordered border-success align-middle">
-                    <th>Title</th>
-                    <th>Date Given</th>
-                    <th>Due Date</th>
-                    <th>Grade</th>
+                    <th>Date</th>
+                    <th>Class</th>
                     <th>Subject</th>
+                    <th>Title</th>
+                    <th>Duration</th>
                     <th>Description</th>
                     <th>More</th>
                 </tr>
             </thead>
             <tbody class="table-group-divider align-middle">
-                {% for assignment in assignments %}
+                {% for guest in guests %}
                     <tr>
-                        <td>{{ assignment.title }}</td>
-                        <td>{{ assignment.date_given }}</td>
-                        <td>{{ assignment.due_date }}</td>
-                        <td>{{ assignment.grade }}</td>
-                        <td>{{ assignment.subject }}</td>
-                        <td>{{ assignment.description }}</td>
+                        <td>{{ guest.date_given }}</td>
+                        <td>{{ guest.grade }}</td>
+                        <td>{{ guest.subject }}</td>
+                        <td>{{ guest.title }}</td>
+                        <td>{{ guest.duration }}</td>
+                        <td>{{ guest.description }}</td>
                         <td>
                             <div class="dropdown align-self-center">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
                                 <ul class="dropdown-menu text-center">
                                     <li>
                                         <form action="/generate_message" method="POST">
-                                            <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                            <input name="id" type="hidden" value="{{ guest.guest_id }}">
                                             <input name="session" type="hidden" value="{{ session }}">
                                             <button type="submit" class="btn btn-outline-primary">Generate Message</button>
                                         </form>
@@ -40,23 +40,23 @@
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form action="/add_event" method="POST">
-                                            <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                            <input name="id" type="hidden" value="{{ guest.guest_id }}">
                                             <input name="session" type="hidden" value="{{ session }}">
                                             <button type="submit" class="btn btn-outline-success">Add Event</button>
                                         </form>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <form action="/edit_homework" method="POST">
-                                            <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                        <form action="/edit_guest" method="POST">
+                                            <input name="id" type="hidden" value="{{ guest.guest_id }}">
                                             <input name="session" type="hidden" value="{{ session }}">
                                             <button type="submit" class="btn btn-outline-warning">Edit</button>
                                         </form>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <form action="/delete_homework" method="POST">
-                                            <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                        <form action="/delete_guest" method="POST">
+                                            <input name="id" type="hidden" value="{{ guest.guest_id }}">
                                             <input name="session" type="hidden" value="{{ session }}">
                                             <button type="submit" class="btn btn-outline-danger">Delete</button>
                                         </form>
