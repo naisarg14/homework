@@ -554,6 +554,7 @@ def full_report():
     session = "AO"
     return render_template('view_homework.html', assignments=assignments, table=table, session=session)
 
+
 @app.route("/full_timetable")
 def full_timetable():
     assignments = db.execute("SELECT * FROM timetable ORDER BY class_date DESC, start_time")
