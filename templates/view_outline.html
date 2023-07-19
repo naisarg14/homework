@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    View Outline
+{% endblock %}
+{% block main %}
+    <h2 class="text-center">Outlines</h2>
+        <table class="text-center table table-success table-hover table-bordered border-success align-middle">
+            <thead>
+                <tr class="table-danger table-bordered border-success align-middle">
+                    <th>Title</th>
+                    <th>Class</th>
+                    <th>Class Date</th>
+                    <th>Class Time</th>
+                    <th>Subject</th>
+                    <th>Description</th>
+                    <th>More</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider align-middle">
+                {% for outline in outlines %}
+                <tr>
+                    <td>{{ outline.title }}</td>
+                    <td>{{ outline.grade }}</td>
+                    <td>{{ outline.class_date }}</td>
+                    <td>{{ outline.class_time }}</td>
+                    <td>{{ outline.subject }}</td>
+                    <td>{{ outline.description }}</td>
+                    <td>
+                        <div class="dropdown align-self-center">
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                            <ul class="dropdown-menu text-center">
+                                <li>
+                                    <form action="/generate_message" method="POST">
+                                        <input name="id" type="hidden" value="{{ outline.outline_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-primary">Generate Message</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/add_event" method="POST">
+                                        <input name="id" type="hidden" value="{{ outline.outline_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-success">Add Event</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/edit_outline" method="POST">
+                                        <input name="id" type="hidden" value="{{ outline.outline_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-warning">Edit</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <<form action="/delete_outline" method="POST">
+                                        <input name="id" type="hidden" value="{{ outline.outline_id }}">
+                                        <input name="session" type="hidden" value="{{ session }}">
+                                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="form-row text-center">
+            <button class="btn btn-outline-secondary" onclick="history.back()">Back</button>
+        </div>
+{% endblock %}
