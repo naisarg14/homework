@@ -14,6 +14,7 @@
                     <th>Start Time</th>
                     <th>End Time</th>
                     <th>Description</th>
+                    <th>Status</th>
                     <th>More</th>
                 </tr>
             </thead>
@@ -26,6 +27,13 @@
                         <td>{{ timetable.start_time }}</td>
                         <td>{{ timetable.end_time }}</td>
                         <td>{{ timetable.description }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-danger">Left</button>
+                                <button type="button" class="btn btn-warning">Middle</button>
+                                <button type="button" class="btn btn-success">Right</button>
+                            </div>
+                        </td>
                         <td>
                             <div class="dropdown align-self-center">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
