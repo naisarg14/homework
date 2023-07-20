@@ -59,6 +59,7 @@
                 <th>Start Time</th>
                 <th>End Time</th>
                 <th>Description</th>
+                <th>Status</th>
                 <th>More</th>
             </tr>
         </thead>
@@ -71,6 +72,19 @@
                     <td>{{ timetable.start_time }}</td>
                     <td>{{ timetable.end_time }}</td>
                     <td>{{ timetable.description }}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="/class_status?id={{ timetable.timetable_id }}&status=done" class="btn btn-outline-success">
+                                <img src="/static/tick.png" alt="Button Icon" width="30" height="30">
+                            </a>
+                            <a href="/class_status?id={{ timetable.timetable_id }}&status=incomplete" class="btn btn-outline-warning">
+                                #TODO
+                            </a>
+                            <a href="/class_status?id={{ timetable.timetable_id }}&status=cancel" class="btn btn-outline-danger">
+                                <img src="/static/cross.png" alt="Button Icon" width="30" height="30">
+                            </a>
+                        </div>
+                    </td>
                     <td>
                         <div class="dropdown align-self-center">
                             <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>

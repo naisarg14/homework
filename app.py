@@ -588,5 +588,5 @@ def about():
     return render_template("about.html")
 
 
-##button in test for done and cancelled
+##status is saved as int (-1,0,1). make backend
 ##edit button (homework, outline, test, timetable, worksheet, extra class)

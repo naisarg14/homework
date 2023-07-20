@@ -41,3 +41,17 @@ nav .navbar-brand .green
     border-radius: 5%;
     width: 100%;
 }
+
+.image-tick {
+    display: inline-block;
+    background: url("static/tick.png") no-repeat;
+    width: 200px;
+    height: 100px;
+    text-indent: -9999px;
+    border: none;
+    cursor: pointer;
+  }
+  
+.image-tick:hover {
+    opacity: 0.8;
+  }
