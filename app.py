@@ -352,8 +352,9 @@ def timetable():
         start_time = request.form["start_time"]
         end_time = request.form["end_time"]
         description = request.form['description']
+        status = 0
 
-        db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description) VALUES (?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description)
+        db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description, status) VALUES (?, ?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description, status)
         flash("Added Successfully!")
 
         if "add_new" in request.form:
@@ -583,10 +584,35 @@ def full_guest():
     return render_template('view_guest.html', guests=guests, session=session)
 
 
+
+@app.route("/class_status")
+def class_status():
+    id = request.args.get('id')
+    status = request.args.get('status')
+    session = request.args.get('session')
+
+    if status == "done":
+        db.execute("UPDATE timetable SET status = 1 WHERE timetable_id = ?", id)
+    elif status == "cancel":
+        db.execute("UPDATE timetable SET status = -1 WHERE timetable_id = ?", id)
+
+    if session[0] == "G":
+        timetables = db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY start_time", session.removeprefix("GT"))
+    if session[0] == "D":
+        timetables = db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", session.removeprefix("DT"))
+    if session[0] == "A":
+        timetables = db.execute("SELECT * FROM timetable ORDER BY start_time")
+
+    timetables = helpers.process_timetable(timetables)
+
+    return render_template('view_timetable.html', timetables=timetables, session=session)
+
+
 @app.route("/about")
 def about():
     return render_template("about.html")
 
 
 ##status is saved as int (-1,0,1). make backend
+##report from timetable
 ##edit button (homework, outline, test, timetable, worksheet, extra class)

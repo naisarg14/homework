@@ -65,7 +65,14 @@
         </thead>
         <tbody class="table-group-divider align-middle">
             {% for timetable in timetables %}
-                <tr>
+                {% if timetable.status == 1 %}
+                    {% set timetable_status = 'success' %}
+                {% elif timetable.status == -1 %}
+                    {% set timetable_status = 'danger' %}
+                {% else %}
+                    {% set timetable_status = 'warning' %}
+                {% endif %}
+                <tr class="table-{{ timetable_status }} table-bordered border-{{ timetable_status }} align-middle">
                     <td>{{ timetable.grade }}</td>
                     <td>{{ timetable.subject }}</td>
                     <td>{{ timetable.class_date }}</td>
@@ -74,13 +81,10 @@
                     <td>{{ timetable.description }}</td>
                     <td>
                         <div class="btn-group" role="group">
-                            <a href="/class_status?id={{ timetable.timetable_id }}&status=done" class="btn btn-outline-success">
+                            <a href="/class_status?id={{ timetable.timetable_id }}&status=done&session={{ session }}" class="btn btn-outline-success">
                                 <img src="/static/tick.png" alt="Button Icon" width="30" height="30">
                             </a>
-                            <a href="/class_status?id={{ timetable.timetable_id }}&status=incomplete" class="btn btn-outline-warning">
-                                #TODO
-                            </a>
-                            <a href="/class_status?id={{ timetable.timetable_id }}&status=cancel" class="btn btn-outline-danger">
+                            <a href="/class_status?id={{ timetable.timetable_id }}&status=cancel&session={{ session }}" class="btn btn-outline-danger">
                                 <img src="/static/cross.png" alt="Button Icon" width="30" height="30">
                             </a>
                         </div>
