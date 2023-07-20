@@ -11,61 +11,62 @@ from googleapiclient.errors import HttpError
 
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/calendar']
+SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 
 def get_creds():
-    #File
+    # File
     file = "credentials.json"
-    
+
     creds = None
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if os.path.exists("token.json"):
+        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(file, SCOPES)
             creds = flow.run_local_server(port=0)
-        with open('token.json', 'w') as token:
+        with open("token.json", "w") as token:
             token.write(creds.to_json())
     return creds
 
 
-def add_event(id, start_date, start_time, end_date, end_time, summary, location, description):
+def add_event(
+    id, start_date, start_time, end_date, end_time, summary, location, description
+):
     creds = get_creds()
-    service = build('calendar', 'v3', credentials=creds)
+    service = build("calendar", "v3", credentials=creds)
     event = {
-        'id': id,
-        'summary': summary,
-        'location': location,
-        'description': description,
-        'start': {
-            'dateTime': start_date + "T" + start_time + "+05:30",
-            'timeZone': 'Asia/Kolkata',
+        "id": id,
+        "summary": summary,
+        "location": location,
+        "description": description,
+        "start": {
+            "dateTime": start_date + "T" + start_time + "+05:30",
+            "timeZone": "Asia/Kolkata",
         },
-        'end': {
-            'dateTime': end_date + "T" + end_time + "+05:30",
-            'timeZone': 'Asia/Kolkata',
+        "end": {
+            "dateTime": end_date + "T" + end_time + "+05:30",
+            "timeZone": "Asia/Kolkata",
         },
     }
-    event = service.events().insert(calendarId='primary', body=event).execute()
-    return 'Event created: %s' % (event.get('htmlLink'))
+    event = service.events().insert(calendarId="primary", body=event).execute()
+    return "Event created: %s" % (event.get("htmlLink"))
 
 
 def delete_event(id):
     creds = get_creds()
-    service = build('calendar', 'v3', credentials=creds)
+    service = build("calendar", "v3", credentials=creds)
     try:
-        service.events().delete(calendarId='primary', eventId=id).execute()
+        service.events().delete(calendarId="primary", eventId=id).execute()
         return "Event deleted"
     except HttpError as error:
         return error
 
 
-#Success!!!!!!!
-#print(add_event(id="2023070419", start_date="2023-07-04", start_time="11:00:00", end_date="2023-07-04", end_time="13:00:00", summary="test&test", location="hogwards", description="timepassispasstime"))
-#print(delete_event("2023070419"))
+# print(add_event(id="2023070419", start_date="2023-07-04", start_time="11:00:00", end_date="2023-07-04", end_time="13:00:00", summary="test&test", location="hogwards", description="timepassispasstime"))
+# print(delete_event("2023070419"))
 
 '''
 def main():

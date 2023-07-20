@@ -2,6 +2,7 @@ from flask import Flask, flash, redirect, render_template, request, session, jso
 from cs50 import SQL
 from flask_session import Session
 from datetime import datetime, timedelta
+
 import helpers
 import google_calander
 
@@ -127,7 +128,7 @@ def delete_homework():
 
     assignments = helpers.process_homework(assignments)
 
-    return render_template('view_homework.html', assignments=assignments, table="homework", session=session)
+    return render_template('view_homework.html', assignments=assignments, session=session)
 
 
 
@@ -176,7 +177,7 @@ def delete_exam():
     exams = helpers.process_exams(exams)
 
     flash("Deleted Successfully!")
-    return render_template('view_exam.html', exams=exams, table="exam", session=session)
+    return render_template('view_exam.html', exams=exams, session=session)
 
 
 
@@ -221,7 +222,7 @@ def delete_outline():
     outlines = helpers.process_outline(outlines)
 
     flash("Deleted Successfully!")
-    return render_template('view_outline.html', outlines=outlines, table="outline", session=session)
+    return render_template('view_outline.html', outlines=outlines, session=session)
 
 
 #Generate Message
@@ -463,7 +464,7 @@ def delete_worksheet():
     worksheets = helpers.process_worksheet(worksheets)
 
     flash("Deleted Successfully!")
-    return render_template('view_worksheet.html', worksheets=worksheets, table="worksheet", session=session)
+    return render_template('view_worksheet.html', worksheets=worksheets, session=session)
 
 
 @app.route("/guest_lecture", methods=["GET", "POST"])
@@ -502,7 +503,7 @@ def delete_guest():
     guests = helpers.process_guest(guests)
 
     flash("Deleted Successfully!")
-    return render_template('view_guest.html', guests=guests, table="guest", session=session)
+    return render_template('view_guest.html', guests=guests, session=session)
 
 
 
@@ -538,7 +539,7 @@ def full_homework():
     assignments = helpers.process_homework(assignments)
     table = "homework"
     session = "AH"
-    return render_template('view_homework.html', assignments=assignments, table=table, session=session)
+    return render_template('view_homework.html', assignments=assignments, session=session)
 
 @app.route("/full_exam")
 def full_exam():
@@ -546,7 +547,7 @@ def full_exam():
     exams = helpers.process_exams(exams)
     table = "exam"
     session = "AE"
-    return render_template('view_exam.html', exams=exams, table=table, session=session)
+    return render_template('view_exam.html', exams=exams, session=session)
 
 @app.route("/full_report")
 def full_report():
@@ -554,7 +555,7 @@ def full_report():
     outlines = helpers.process_outline(outlines)
     table = "outline"
     session = "AO"
-    return render_template('view_outline.html', outlines=outlines, table=table, session=session)
+    return render_template('view_outline.html', outlines=outlines, session=session)
 
 
 @app.route("/full_timetable")
@@ -563,7 +564,7 @@ def full_timetable():
     timetables = helpers.process_timetable(timetables)
     table = "timetable"
     session = "AT"
-    return render_template('view_timetable.html', timetables=timetables, table=table, session=session)
+    return render_template('view_timetable.html', timetables=timetables, session=session)
 
 @app.route("/full_worksheet")
 def full_worksheey():
@@ -571,7 +572,7 @@ def full_worksheey():
     worksheets = helpers.process_worksheet(worksheets)
     table = "worksheet"
     session = "AW"
-    return render_template('view_worksheet.html', worksheets=worksheets, table=table, session=session)
+    return render_template('view_worksheet.html', worksheets=worksheets, session=session)
 
 @app.route("/full_guest")
 def full_guest():
@@ -579,7 +580,7 @@ def full_guest():
     guests = helpers.process_guest(guests)
     table = "guest"
     session = "AL"
-    return render_template('view_guest.html', guests=guests, table=table, session=session)
+    return render_template('view_guest.html', guests=guests, session=session)
 
 
 @app.route("/about")

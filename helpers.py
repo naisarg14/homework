@@ -1,31 +1,34 @@
 from datetime import datetime
 from cs50 import SQL
 
-grades_dict = {"9MWF": "Class 9 MWF",
-               "9TTS": "Class 9 TTS",
-               "9MOR": "Isucceed Achievers 6 AM",
-               "10TTS": "Class 10-Diligent Squad",
-               "11MWF": "Class 11",
-               "12MWF": "Class 12",
-               "12AM": "Class 12 AM",
-               "diya": "Diya",
-               "neel": "Neel",
-               "ansh": "Ansh",
-               "sakshi": "Sakshi",
-               "vedant": "Vedant",
-               "dhiya": "Dhiya",
-               }
+grades_dict = {
+    "9MWF": "Class 9 MWF",
+    "9TTS": "Class 9 TTS",
+    "9MOR": "Isucceed Achievers 6 AM",
+    "10TTS": "Class 10-Diligent Squad",
+    "11MWF": "Class 11",
+    "12MWF": "Class 12",
+    "12AM": "Class 12 AM",
+    "diya": "Diya",
+    "neel": "Neel",
+    "ansh": "Ansh",
+    "sakshi": "Sakshi",
+    "vedant": "Vedant",
+    "dhiya": "Dhiya",
+}
 database = "homework.db"
 name = "Bhawna Teacher"
 
+
 def process_time(time_str):
     try:
-        time_obj = datetime.strptime(time_str, '%H:%M')
-        formatted_time = time_obj.strftime('%I:%M %p')
+        time_obj = datetime.strptime(time_str, "%H:%M")
+        formatted_time = time_obj.strftime("%I:%M %p")
         return formatted_time
     except:
-        pass    
+        pass
     return "None"
+
 
 def process_date(date_str):
     try:
@@ -36,12 +39,14 @@ def process_date(date_str):
         pass
     return "None"
 
+
 def process_homework(assignments):
     for assignment in assignments:
         assignment["grade"] = grades_dict[assignment["grade"]]
         assignment["date_given"] = process_date(assignment["date_given"])
         assignment["due_date"] = process_date(assignment["due_date"])
     return assignments
+
 
 def process_exams(exams):
     for exam in exams:
@@ -50,12 +55,14 @@ def process_exams(exams):
         exam["exam_date"] = process_date(exam["exam_date"])
     return exams
 
+
 def process_outline(outlines):
     for outline in outlines:
         outline["grade"] = grades_dict[outline["grade"]]
         outline["class_date"] = process_date(outline["class_date"])
         outline["time"] = process_time(outline["time"])
     return outlines
+
 
 def process_timetable(timetables):
     for timetable in timetables:
@@ -65,11 +72,13 @@ def process_timetable(timetables):
         timetable["end_time"] = process_time(timetable["end_time"])
     return timetables
 
+
 def process_worksheet(worksheets):
     for worksheet in worksheets:
         worksheet["grade"] = grades_dict[worksheet["grade"]]
         worksheet["class_date"] = process_date(worksheet["class_date"])
     return worksheets
+
 
 def process_guest(guest_lecture):
     for guest in guest_lecture:
@@ -87,6 +96,7 @@ def format_homework(id):
     schedule = f'Isucceed Coaching Class-Homework Schedule\nTitle: {assignment["title"]}\nClass: {assignment["grade"]}\nSubject: {assignment["subject"]}\nDescription: {assignment["description"]}\nDue Date: {assignment["due_date"]}\n{name}'
     return (title, schedule)
 
+
 def format_exam(id):
     db = SQL(f"sqlite:///{database}")
     exams = db.execute("SELECT * FROM exam WHERE exam_id = ?", id)
@@ -96,6 +106,7 @@ def format_exam(id):
     schedule = f'Isucceed Coaching Class-Exam Schedule\nTitle: {exam["title"]}\nClass: {exam["grade"]}\nSubject: {exam["subject"]}\nPortion: {exam["portion"]}\nDate: {exam["exam_date"]}\nTime: {exam["exam_time"]}\nMarks: {exam["marks"]}\n{name}'
     return (title, schedule)
 
+
 def format_outline(id):
     db = SQL(f"sqlite:///{database}")
     outlines = db.execute("SELECT * FROM outline WHERE outline_id = ?", id)
@@ -104,6 +115,7 @@ def format_outline(id):
     title = "Class Outline"
     schedule = f'Isucceed Coaching Class-Class Outline\nTitle: {outline["title"]}\nClass: {outline["grade"]}Time: {outline["time"]}\nSubject: {outline["subject"]}\nDescription: {outline["description"]}\nDate: {outline["class_date"]}\n{name}'
     return (title, schedule)
+
 
 def format_timetable(id):
     db = SQL(f"sqlite:///{database}")
