@@ -7,7 +7,7 @@
     <h2 class="text-center">Tests</h2>
         <table class="text-center table table-success table-hover table-bordered border-success align-middle">
             <thead>
-                <tr class="table-danger table-bordered border-success align-middle">
+                <tr class="table-primary table-bordered border-primary align-middle">
                     <th>Title</th>
                     <th>Class</th>
                     <th>Exam Date</th>
@@ -15,12 +15,20 @@
                     <th>Marks</th>
                     <th>Subject</th>
                     <th>Portion</th>
+                    <th>Status</th>
                     <th>More</th>
                 </tr>
             </thead>
             <tbody class="table-group-divider align-middle">
                 {% for exam in exams %}
-                <tr>
+                    {% if exam.status == 1 %}
+                        {% set exam_status = 'success' %}
+                    {% elif exam.status == -1 %}
+                        {% set exam_status = 'danger' %}
+                    {% else %}
+                        {% set exam_status = 'warning' %}
+                    {% endif %}
+                <tr class="table-{{ exam_status }} table-bordered border-{{ exam_status }} align-middle">
                     <td>{{ exam.title }}</td>
                     <td>{{ exam.grade }}</td>
                     <td>{{ exam.exam_date }}</td>
@@ -28,6 +36,16 @@
                     <td>{{ exam.marks }}</td>
                     <td>{{ exam.subject }}</td>
                     <td>{{ exam.portion }}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="/exam_status?id={{ exam.exam_id }}&status=done&session={{ session }}" class="btn btn-outline-success">
+                                <img src="/static/tick.png" alt="Button Icon" width="30" height="30">
+                            </a>
+                            <a href="/exam_status?id={{ exam.exam_id }}&status=cancel&session={{ session }}" class="btn btn-outline-danger">
+                                <img src="/static/cross.png" alt="Button Icon" width="30" height="30">
+                            </a>
+                        </div>
+                    </td>
                     <td>
                         <div class="dropdown align-self-center">
                             <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>

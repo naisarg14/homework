@@ -105,10 +105,14 @@ def add_homework():
         id = db.execute(" INSERT INTO homework (title, date_given, due_date, grade, subject, description) VALUES (?, ?, ?, ?, ?, ?)",
                     title, date_given, due_date, grade, subject, description)
         
-        formatted_text = helpers.format_homework(id)
-
-        flash('Homework assignment added successfully!', 'success')
-        return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+        if "add_new" in request.form:
+            flash('Homework assignment added successfully!')
+            return redirect("/add_homework")
+        
+        if "add_message" in request.form:
+            formatted_text = helpers.format_homework(id)
+            flash('Homework assignment added successfully!')
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
 
 
 @app.route("/delete_homework", methods=["POST"])
@@ -153,10 +157,14 @@ def schedule_test():
         id = db.execute("INSERT INTO exam (title, exam_date, grade, exam_time, marks, portion, subject) VALUES (?, ?, ?, ?, ?, ?, ?)",
                    title, exam_date, grade, exam_time, marks, portion, subject)
 
-        formatted_text = helpers.format_exam(id)
-
-        flash("Exam Scheduled!")
-        return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+        if "add_new" in request.form:
+            flash("Exam Scheduled!")
+            return redirect("/schedule_test")
+        
+        if "add_message" in request.form:
+            formatted_text = helpers.format_exam(id)
+            flash("Exam Scheduled!")
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
 
 
 
@@ -199,10 +207,14 @@ def class_report():
 
         id = db.execute("INSERT INTO outline (title, class_date, grade, description, subject, time) VALUES (?, ?, ?, ?, ?)", title, class_date, grade, description, subject, time)
         
-        formatted_text = helpers.format_outline(id)
-
-        flash("Added Successfully")
-        return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+        if "add_new" in request.form:
+            flash("Added Successfully")
+            return redirect("/class_outline")
+        
+        if "add_message" in request.form:
+            formatted_text = helpers.format_outline(id)
+            flash("Added Successfully")
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
 
 
 @app.route("/delete_outline", methods=["POST"])
@@ -358,6 +370,7 @@ def timetable():
         flash("Added Successfully!")
 
         if "add_new" in request.form:
+            flash("Class Added Successfully!")
             return redirect("/timetable")
         
         if "add_message" in request.form:
@@ -440,6 +453,7 @@ def add_worksheet():
         id = db.execute("INSERT INTO worksheet (publication, title, given_date, grade, subject, copies, notes) VALUES (?, ?, ?, ?, ?, ?, ?)", publication, title, given_date, grade, subject, copies, notes)
 
         if "add_new" in request.form:
+            flash("Worksheet Issued Successfully!")
             return redirect("/worksheet")
         
         if "add_message" in request.form:
@@ -608,11 +622,37 @@ def class_status():
     return render_template('view_timetable.html', timetables=timetables, session=session)
 
 
+
+@app.route("/exam_status")
+def exam_status():
+    id = request.args.get('id')
+    status = request.args.get('status')
+    session = request.args.get('session')
+
+    if status == "done":
+        db.execute("UPDATE exam SET status = 1 WHERE exam_id = ?", id)
+    elif status == "cancel":
+        db.execute("UPDATE exam SET status = -1 WHERE exam_id = ?", id)
+
+    if session[0] == "G":
+        exams = db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date", session.removeprefix("GE"))
+    if session[0] == "D":
+        exams = db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY grade", session.removeprefix("DE"))
+    if session[0] == "A":
+        exams = db.execute("SELECT * FROM exam ORDER BY grade")
+
+    exams = helpers.process_exams(exams)
+
+    return render_template('view_exam.html', exams=exams, session=session)
+
+
 @app.route("/about")
 def about():
     return render_template("about.html")
 
 
-##status is saved as int (-1,0,1). make backend
+
+##status exam is saved as int (-1,0,1). make backend
 ##report from timetable
 ##edit button (homework, outline, test, timetable, worksheet, extra class)
+##add event
