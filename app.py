@@ -189,6 +189,29 @@ def delete_exam():
 
 
 
+@app.route("/exam_status")
+def exam_status():
+    id = request.args.get('id')
+    status = request.args.get('status')
+    session = request.args.get('session')
+
+    if status == "done":
+        db.execute("UPDATE exam SET status = 1 WHERE exam_id = ?", id)
+    elif status == "cancel":
+        db.execute("UPDATE exam SET status = -1 WHERE exam_id = ?", id)
+
+    if session[0] == "G":
+        exams = db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date", session.removeprefix("GE"))
+    if session[0] == "D":
+        exams = db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY grade", session.removeprefix("DE"))
+    if session[0] == "A":
+        exams = db.execute("SELECT * FROM exam ORDER BY grade")
+
+    exams = helpers.process_exams(exams)
+
+    return render_template('view_exam.html', exams=exams, session=session)
+
+
 # CLASS OUTLINE
 @app.route("/class_outline", methods=["GET", "POST"])
 def class_report():
@@ -401,6 +424,30 @@ def delete_timetable():
     return render_template('view_timetable.html', timetables=timetables, session=session)
 
 
+
+@app.route("/class_status")
+def class_status():
+    id = request.args.get('id')
+    status = request.args.get('status')
+    session = request.args.get('session')
+
+    if status == "done":
+        db.execute("UPDATE timetable SET status = 1 WHERE timetable_id = ?", id)
+    elif status == "cancel":
+        db.execute("UPDATE timetable SET status = -1 WHERE timetable_id = ?", id)
+
+    if session[0] == "G":
+        timetables = db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY start_time", session.removeprefix("GT"))
+    if session[0] == "D":
+        timetables = db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", session.removeprefix("DT"))
+    if session[0] == "A":
+        timetables = db.execute("SELECT * FROM timetable ORDER BY start_time")
+
+    timetables = helpers.process_timetable(timetables)
+
+    return render_template('view_timetable.html', timetables=timetables, session=session)
+
+
 @app.route("/add_event", methods=["POST"])
 def add_event():
     id = request.form["id"]
@@ -598,61 +645,12 @@ def full_guest():
     return render_template('view_guest.html', guests=guests, session=session)
 
 
-
-@app.route("/class_status")
-def class_status():
-    id = request.args.get('id')
-    status = request.args.get('status')
-    session = request.args.get('session')
-
-    if status == "done":
-        db.execute("UPDATE timetable SET status = 1 WHERE timetable_id = ?", id)
-    elif status == "cancel":
-        db.execute("UPDATE timetable SET status = -1 WHERE timetable_id = ?", id)
-
-    if session[0] == "G":
-        timetables = db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY start_time", session.removeprefix("GT"))
-    if session[0] == "D":
-        timetables = db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", session.removeprefix("DT"))
-    if session[0] == "A":
-        timetables = db.execute("SELECT * FROM timetable ORDER BY start_time")
-
-    timetables = helpers.process_timetable(timetables)
-
-    return render_template('view_timetable.html', timetables=timetables, session=session)
-
-
-
-@app.route("/exam_status")
-def exam_status():
-    id = request.args.get('id')
-    status = request.args.get('status')
-    session = request.args.get('session')
-
-    if status == "done":
-        db.execute("UPDATE exam SET status = 1 WHERE exam_id = ?", id)
-    elif status == "cancel":
-        db.execute("UPDATE exam SET status = -1 WHERE exam_id = ?", id)
-
-    if session[0] == "G":
-        exams = db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date", session.removeprefix("GE"))
-    if session[0] == "D":
-        exams = db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY grade", session.removeprefix("DE"))
-    if session[0] == "A":
-        exams = db.execute("SELECT * FROM exam ORDER BY grade")
-
-    exams = helpers.process_exams(exams)
-
-    return render_template('view_exam.html', exams=exams, session=session)
-
-
 @app.route("/about")
 def about():
     return render_template("about.html")
 
 
 
-##status exam is saved as int (-1,0,1). make backend
 ##report from timetable
 ##edit button (homework, outline, test, timetable, worksheet, extra class)
 ##add event
