@@ -102,6 +102,13 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
+                                    <form action="/generate_outline" method="POST">
+                                        <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+                                        <button type="submit" class="btn btn-outline-success">Add Report</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
                                     <form action="/add_event" method="POST">
                                         <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
                                         <input name="session" type="hidden" value="{{ session }}">

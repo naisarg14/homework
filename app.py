@@ -214,7 +214,7 @@ def exam_status():
 
 # CLASS OUTLINE
 @app.route("/class_outline", methods=["GET", "POST"])
-def class_report():
+def class_outline():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
 
@@ -238,6 +238,16 @@ def class_report():
             formatted_text = helpers.format_outline(id)
             flash("Added Successfully")
             return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+        
+
+@app.route("/generate_outline", methods=["POST"])
+def generate_outline():
+    timetable_id = request.form["id"]
+
+    timetables = db.execute("SELECT * FROM timetable WHERE timetable_id = ?", timetable_id)
+    timetable = timetables[0]
+    
+    return render_template("generate_outline.html", timetable=timetable, grades_dict=grades_dict)
 
 
 @app.route("/delete_outline", methods=["POST"])
