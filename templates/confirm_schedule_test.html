@@ -18,8 +18,12 @@
                 <a href="/add_homework" class="btn btn-outline-primary">Add Another Homework</a>
             {% elif formatted_text[0] == "Class Outline" %}
                 <a href="/class_outline" class="btn btn-outline-primary">Add Another Class Outline</a>
-            {% else %}
+            {% elif formatted_text[0] == "Class Schedule" %}
                 <a href="/timetable" class="btn btn-outline-primary">Add Another Class</a>
+            {% elif formatted_text[0] == "Worksheet Issued" %}
+                <a href="/worksheet" class="btn btn-outline-primary">Add Another Worksheet</a>
+            {% else %}
+                <a href="/guest" class="btn btn-outline-primary">Add Another Guest Lecture</a>
             {% endif %}
             <button class="btn btn-outline-secondary" onclick="history.back()">Back</button>
         </div>

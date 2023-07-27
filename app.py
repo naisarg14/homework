@@ -517,11 +517,11 @@ def delete_worksheet():
     db.execute("DELETE FROM worksheet WHERE worksheet_id = ?", worksheet_id)
 
     if session[0] == "G":
-        worksheets = db.execute("SELECT * FROM worksheet WHERE grade = ? ORDER BY start_time", session.removeprefix("GW"))
+        worksheets = db.execute("SELECT * FROM worksheet WHERE grade = ? ORDER BY given_date", session.removeprefix("GW"))
     if session[0] == "D":
-        worksheets = db.execute("SELECT * FROM worksheet WHERE class_date = ? ORDER BY start_time", session.removeprefix("DW"))
+        worksheets = db.execute("SELECT * FROM worksheet WHERE given_date = ? ORDER BY grade", session.removeprefix("DW"))
     if session[0] == "A":
-        worksheets = db.execute("SELECT * FROM worksheet ORDER BY start_time")
+        worksheets = db.execute("SELECT * FROM worksheet ORDER BY given_date")
 
     worksheets = helpers.process_worksheet(worksheets)
 

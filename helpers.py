@@ -76,7 +76,7 @@ def process_timetable(timetables):
 def process_worksheet(worksheets):
     for worksheet in worksheets:
         worksheet["grade"] = grades_dict[worksheet["grade"]]
-        worksheet["class_date"] = process_date(worksheet["class_date"])
+        worksheet["given_date"] = process_date(worksheet["given_date"])
     return worksheets
 
 
