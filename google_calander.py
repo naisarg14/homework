@@ -32,27 +32,28 @@ def get_creds():
     return creds
 
 
-def add_event(
-    id, start_date, start_time, end_date, end_time, summary, location, description
-):
-    creds = get_creds()
-    service = build("calendar", "v3", credentials=creds)
-    event = {
-        "id": id,
-        "summary": summary,
-        "location": location,
-        "description": description,
-        "start": {
-            "dateTime": start_date + "T" + start_time + "+05:30",
-            "timeZone": "Asia/Kolkata",
-        },
-        "end": {
-            "dateTime": end_date + "T" + end_time + "+05:30",
-            "timeZone": "Asia/Kolkata",
-        },
-    }
-    event = service.events().insert(calendarId="primary", body=event).execute()
-    return "Event created: %s" % (event.get("htmlLink"))
+def add_event(id, start_date, start_time, end_date, end_time, summary, location, description):
+    try:
+        creds = get_creds()
+        service = build("calendar", "v3", credentials=creds)
+        event = {
+            "id": id,
+            "summary": summary,
+            "location": location,
+            "description": description,
+            "start": {
+                "dateTime": start_date + "T" + start_time + "+05:30",
+                "timeZone": "Asia/Kolkata",
+            },
+            "end": {
+                "dateTime": end_date + "T" + end_time + "+05:30",
+                "timeZone": "Asia/Kolkata",
+            },
+        }
+        event = service.events().insert(calendarId="primary", body=event).execute()
+        return 0
+    except Exception as error:
+        return error
 
 
 def delete_event(id):
@@ -60,7 +61,7 @@ def delete_event(id):
     service = build("calendar", "v3", credentials=creds)
     try:
         service.events().delete(calendarId="primary", eventId=id).execute()
-        return "Event deleted"
+        return 0
     except HttpError as error:
         return error
 

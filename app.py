@@ -2,6 +2,7 @@ from flask import Flask, flash, redirect, render_template, request, session, jso
 from cs50 import SQL
 from flask_session import Session
 from datetime import datetime, timedelta
+import uuid
 
 import helpers
 import google_calander
@@ -414,6 +415,8 @@ def timetable():
         return redirect("/timetable")
 
 
+
+
 @app.route("/delete_timetable", methods=["POST"])
 def delete_timetable():
     timetable_id = request.form["id"]
@@ -462,11 +465,106 @@ def class_status():
 def add_event():
     id = request.form["id"]
     session = request.form["session"]
+    event_id = str(uuid.uuid4()).replace("-", "")
 
     if session[1] == "H":
         assignment = db.execute("SELECT * FROM homework WHERE homework_id = ? ", id)
-        assignment = helpers.process_homework(assignment)
-        event_id = (str(assignment["due_date"])).replace("-", "") + assignment["homework_id"]
+        assignment = assignment[0]
+        #assignment = helpers.process_homework(assignment)
+
+        timetables = db.execute("SELECT * FROM timetable WHERE grade = ? AND subject = ? AND class_date = ?", assignment["grade"], assignment["subject"], assignment["due_date"])
+        
+        if timetables:
+            timetable = timetables[0]
+            start_time = str(timetable["start_time"]) + ":00"
+            end_time = str(timetable["end_time"]) + ":00"
+        else:
+            start_time = "06:00:00"
+            end_time = "22:00:00"
+
+        if assignment["grade"] in ["diya", "neel", "ansh", "sakshi", "vedant", "dhiya"]:
+            location = "Private Tution"
+        else:
+            location = "Shiv Apartment"
+
+        event_status = google_calander.add_event(
+            id=event_id,
+            start_date=assignment["due_date"],
+            start_time=start_time,
+            end_date=assignment["due_date"],
+            end_time=end_time,
+            summary=assignment["title"],
+            location=location,
+            description=assignment["description"],
+        )
+
+        if event_status == 0:
+            db.execute("UPDATE homework SET event_id = ? WHERE homework_id = ?", event_id, id)
+            flash("Event Added Succeessfully!")
+        else:
+            flash(f"Event Not Added. Error: {event_status}")
+
+        if session[0] == "G":
+            assignments = db.execute("SELECT * FROM homework WHERE grade = ? ORDER BY due_date", session.removeprefix("GH"))
+        if session[0] == "D":
+            assignments = db.execute("SELECT * FROM homework WHERE due_date = ? ORDER BY grade", session.removeprefix("DH"))
+        if session[0] == "A":
+            assignments = db.execute("SELECT * FROM homework ORDER BY grade")
+
+        assignments = helpers.process_homework(assignments)
+
+        return render_template('view_homework.html', assignments=assignments, session=session)
+
+    if session[1] == "E":
+        exam = db.execute("SELECT * FROM exam WHERE exam_id = ? ", id)
+        exam = helpers.process_exams(exam)
+
+    if session[1] == "O":
+        outline = db.execute("SELECT * FROM outline WHERE outline_id = ? ", id)
+        outline = helpers.process_outline(outline)
+
+    if session[1] == "T":
+        timetable = db.execute("SELECT * FROM timetable WHERE timetable_id = ? ", id)
+        timetable = helpers.process_timetable(timetable)
+
+    if session[1] == "W":  
+        worksheet = db.execute("SELECT * FROM worksheet WHERE worksheet_id = ? ", id)
+        worksheet = helpers.process_worksheet(worksheet)
+    
+    if session[1] == "L":
+        guest = db.execute("SELECT * FROM guest WHERE guest_id = ? ", id)
+        guest = helpers.process_guest(guest)
+        
+    ##add backend for events
+
+
+@app.route("/delete_event", methods=["POST"])
+def delete_event():
+    id = request.form["id"]
+    session = request.form["session"]
+
+    if session[1] == "H":
+        event_id = db.execute("SELECT event_id FROM homework WHERE homework_id = ?", id)
+        event_id = event_id[0]
+
+        event_status = google_calander.delete_event(event_id["event_id"])
+
+        if event_status == 0:
+            db.execute("UPDATE homework SET event_id = ? WHERE homework_id = ?", "", id)
+            flash("Event Deleted Succeessfully!")
+        else:
+            flash(f"Event Not Deleted. Error: {event_status}")
+
+        if session[0] == "G":
+            assignments = db.execute("SELECT * FROM homework WHERE grade = ? ORDER BY due_date", session.removeprefix("GH"))
+        if session[0] == "D":
+            assignments = db.execute("SELECT * FROM homework WHERE due_date = ? ORDER BY grade", session.removeprefix("DH"))
+        if session[0] == "A":
+            assignments = db.execute("SELECT * FROM homework ORDER BY grade")
+
+        assignments = helpers.process_homework(assignments)
+
+        return render_template('view_homework.html', assignments=assignments, session=session)
 
     if session[1] == "E":
         exam = db.execute("SELECT * FROM exam WHERE exam_id = ? ", id)
@@ -607,25 +705,22 @@ def extra_class():
 #Complete Lists
 @app.route("/full_homework")
 def full_homework():
-    assignments = db.execute("SELECT * FROM homework ORDER BY due_date")
+    assignments = db.execute("SELECT * FROM homework ORDER BY due_date DESC")
     assignments = helpers.process_homework(assignments)
-    table = "homework"
     session = "AH"
     return render_template('view_homework.html', assignments=assignments, session=session)
 
 @app.route("/full_exam")
 def full_exam():
-    exams  = db.execute("SELECT * FROM exam ORDER BY exam_date")
+    exams  = db.execute("SELECT * FROM exam ORDER BY exam_date DESC")
     exams = helpers.process_exams(exams)
-    table = "exam"
     session = "AE"
     return render_template('view_exam.html', exams=exams, session=session)
 
 @app.route("/full_report")
 def full_report():
-    outlines = db.execute("SELECT * FROM outline ORDER BY class_date")
+    outlines = db.execute("SELECT * FROM outline ORDER BY class_date DESC")
     outlines = helpers.process_outline(outlines)
-    table = "outline"
     session = "AO"
     return render_template('view_outline.html', outlines=outlines, session=session)
 
@@ -634,23 +729,20 @@ def full_report():
 def full_timetable():
     timetables = db.execute("SELECT * FROM timetable ORDER BY class_date DESC, start_time")
     timetables = helpers.process_timetable(timetables)
-    table = "timetable"
     session = "AT"
     return render_template('view_timetable.html', timetables=timetables, session=session)
 
 @app.route("/full_worksheet")
 def full_worksheey():
-    worksheets = db.execute("SELECT * FROM worksheet ORDER BY given_date")
+    worksheets = db.execute("SELECT * FROM worksheet ORDER BY given_date DESC")
     worksheets = helpers.process_worksheet(worksheets)
-    table = "worksheet"
     session = "AW"
     return render_template('view_worksheet.html', worksheets=worksheets, session=session)
 
 @app.route("/full_guest")
 def full_guest():
-    guests = db.execute("SELECT * FROM guest ORDER BY date_given")
+    guests = db.execute("SELECT * FROM guest ORDER BY date_given DESC")
     guests = helpers.process_guest(guests)
-    table = "guest"
     session = "AL"
     return render_template('view_guest.html', guests=guests, session=session)
 
@@ -660,7 +752,5 @@ def about():
     return render_template("about.html")
 
 
-
-##report from timetable
 ##edit button (homework, outline, test, timetable, worksheet, extra class)
 ##add event

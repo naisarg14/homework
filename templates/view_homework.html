@@ -38,13 +38,31 @@
                                         </form>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form action="/add_event" method="POST">
-                                            <input name="id" type="hidden" value="{{ assignment.homework_id }}">
-                                            <input name="session" type="hidden" value="{{ session }}">
-                                            <button type="submit" class="btn btn-outline-success">Add Event</button>
-                                        </form>
-                                    </li>
+                                    {% if assignment.event_id %}
+                                        <li>
+                                            <form action="/delete_event" method="POST">
+                                                <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                                <input name="session" type="hidden" value="{{ session }}">
+                                                <button type="submit" class="btn btn-outline-danger">Delete Event</button>
+                                            </form>
+                                        </li>
+                                    {% elif assignment.event_id == "" %}
+                                        <li>
+                                            <form action="/add_event" method="POST">
+                                                <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                                <input name="session" type="hidden" value="{{ session }}">
+                                                <button type="submit" class="btn btn-outline-success">Add Event</button>
+                                            </form>
+                                        </li>
+                                    {% else %}
+                                        <li>
+                                            <form action="/add_event" method="POST">
+                                                <input name="id" type="hidden" value="{{ assignment.homework_id }}">
+                                                <input name="session" type="hidden" value="{{ session }}">
+                                                <button type="submit" class="btn btn-outline-success">Add Event</button>
+                                            </form>
+                                        </li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form action="/edit_homework" method="POST">
