@@ -36,12 +36,22 @@
                         <td>{{ timetable.description }}</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="/class_status?id={{ timetable.timetable_id }}&status=done&session={{ session }}" class="btn btn-outline-success">
-                                    <img src="/static/tick.png" alt="Button Icon" width="30" height="30">
-                                </a>
-                                <a href="/class_status?id={{ timetable.timetable_id }}&status=cancel&session={{ session }}" class="btn btn-outline-danger">
-                                    <img src="/static/cross.png" alt="Button Icon" width="30" height="30">
-                                </a>
+                                {% if timetable_status == 'danger' %}
+                                    <a href="/class_status?id={{ timetable.timetable_id }}&status=done&session={{ session }}" class="btn btn-outline-success">
+                                        <img src="/static/tick.png" alt="Button Icon" width="30" height="30">
+                                    </a>
+                                {% elif timetable_status == 'success' %}
+                                    <a href="/class_status?id={{ timetable.timetable_id }}&status=cancel&session={{ session }}" class="btn btn-outline-danger">
+                                        <img src="/static/cross.png" alt="Button Icon" width="30" height="30">
+                                    </a>
+                                {% else %}
+                                    <a href="/class_status?id={{ timetable.timetable_id }}&status=done&session={{ session }}" class="btn btn-outline-success">
+                                        <img src="/static/tick.png" alt="Button Icon" width="30" height="30">
+                                    </a>
+                                    <a href="/class_status?id={{ timetable.timetable_id }}&status=cancel&session={{ session }}" class="btn btn-outline-danger">
+                                        <img src="/static/cross.png" alt="Button Icon" width="30" height="30">
+                                    </a>
+                                {% endif %}
                             </div>
                         </td>
                         <td>

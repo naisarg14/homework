@@ -124,14 +124,7 @@ def delete_homework():
     db.execute("DELETE FROM homework WHERE homework_id = ?", homework_id)
     flash("Deleted Successfully!")
 
-    if session[0] == "G":
-        assignments = db.execute("SELECT * FROM homework WHERE grade = ? ORDER BY due_date", session.removeprefix("GH"))
-    if session[0] == "D":
-        assignments = db.execute("SELECT * FROM homework WHERE due_date = ? ORDER BY grade", session.removeprefix("DH"))
-    if session[0] == "A":
-        assignments = db.execute("SELECT * FROM homework ORDER BY grade")
-
-    assignments = helpers.process_homework(assignments)
+    assignments = helpers.homework_from_session(session)
 
     return render_template('view_homework.html', assignments=assignments, session=session)
 
@@ -415,6 +408,12 @@ def timetable():
         return redirect("/timetable")
 
 
+'''@app.route("/edit_timetable", method=["POST"])
+def edit_timetable():
+    timetable_id = request.form["id"]
+    session = request.form["session"]
+'''
+
 
 
 @app.route("/delete_timetable", methods=["POST"])
@@ -422,16 +421,7 @@ def delete_timetable():
     timetable_id = request.form["id"]
     session = request.form["session"]
 
-    db.execute("DELETE FROM timetable WHERE timetable_id = ?", timetable_id)
-
-    if session[0] == "G":
-        timetables = db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY start_time", session.removeprefix("GT"))
-    if session[0] == "D":
-        timetables = db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", session.removeprefix("DT"))
-    if session[0] == "A":
-        timetables = db.execute("SELECT * FROM timetable ORDER BY start_time")
-
-    timetables = helpers.process_timetable(timetables)
+    timetables = helpers.timetable_from_session(session)
 
     flash("Deleted Successfully!")
     return render_template('view_timetable.html', timetables=timetables, session=session)
@@ -449,14 +439,7 @@ def class_status():
     elif status == "cancel":
         db.execute("UPDATE timetable SET status = -1 WHERE timetable_id = ?", id)
 
-    if session[0] == "G":
-        timetables = db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY start_time", session.removeprefix("GT"))
-    if session[0] == "D":
-        timetables = db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", session.removeprefix("DT"))
-    if session[0] == "A":
-        timetables = db.execute("SELECT * FROM timetable ORDER BY start_time")
-
-    timetables = helpers.process_timetable(timetables)
+    timetables = helpers.timetable_from_session(session)
 
     return render_template('view_timetable.html', timetables=timetables, session=session)
 
@@ -504,14 +487,7 @@ def add_event():
         else:
             flash(f"Event Not Added. Error: {event_status}")
 
-        if session[0] == "G":
-            assignments = db.execute("SELECT * FROM homework WHERE grade = ? ORDER BY due_date", session.removeprefix("GH"))
-        if session[0] == "D":
-            assignments = db.execute("SELECT * FROM homework WHERE due_date = ? ORDER BY grade", session.removeprefix("DH"))
-        if session[0] == "A":
-            assignments = db.execute("SELECT * FROM homework ORDER BY grade")
-
-        assignments = helpers.process_homework(assignments)
+        assignments = helpers.homework_from_session(session)
 
         return render_template('view_homework.html', assignments=assignments, session=session)
 
@@ -555,14 +531,7 @@ def delete_event():
         else:
             flash(f"Event Not Deleted. Error: {event_status}")
 
-        if session[0] == "G":
-            assignments = db.execute("SELECT * FROM homework WHERE grade = ? ORDER BY due_date", session.removeprefix("GH"))
-        if session[0] == "D":
-            assignments = db.execute("SELECT * FROM homework WHERE due_date = ? ORDER BY grade", session.removeprefix("DH"))
-        if session[0] == "A":
-            assignments = db.execute("SELECT * FROM homework ORDER BY grade")
-
-        assignments = helpers.process_homework(assignments)
+        assignments = helpers.homework_from_session(session)
 
         return render_template('view_homework.html', assignments=assignments, session=session)
 

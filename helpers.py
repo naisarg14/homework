@@ -145,3 +145,31 @@ def format_guest(id):
     title = "Guest Lecture"
     schedule = f'Isucceed Coaching Class-Guest Lecture\nTitle: {guest["title"]}\nClass: {guest["grade"]}\nSubject: {guest["subject"]}\nDate: {guest["date_given"]}\nDuration: {guest["duration"]}\nDescription: {guest["description"]}\n{name}'
     return (title, schedule)
+
+
+def homework_from_session(session):
+    db = SQL(f"sqlite:///{database}")
+    if session[0] == "G":
+        assignments = db.execute("SELECT * FROM homework WHERE grade = ? ORDER BY due_date DESC", session.removeprefix("GH"))
+    if session[0] == "D":
+        assignments = db.execute("SELECT * FROM homework WHERE due_date = ? ORDER BY grade", session.removeprefix("DH"))
+    if session[0] == "A":
+        assignments = db.execute("SELECT * FROM homework ORDER BY due_date DESC")
+
+    assignments = process_homework(assignments)
+
+    return assignments
+
+
+def timetable_from_session(session):
+    db = SQL(f"sqlite:///{database}")
+    if session[0] == "G":
+        timetables = db.execute("SELECT * FROM timetable WHERE grade = ? ORDER BY class_date DESC", session.removeprefix("GT"))
+    if session[0] == "D":
+        timetables = db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", session.removeprefix("DT"))
+    if session[0] == "A":
+        timetables = db.execute("SELECT * FROM timetable ORDER BY class_date DESC, start_time")
+
+    timetables = process_timetable(timetables)
+
+    return timetables
