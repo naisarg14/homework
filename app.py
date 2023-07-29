@@ -169,14 +169,7 @@ def delete_exam():
 
     db.execute("DELETE FROM exam WHERE exam_id = ?", exam_id)
 
-    if session[0] == "G":
-        exams = db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date", session.removeprefix("GE"))
-    if session[0] == "D":
-        exams = db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY grade", session.removeprefix("DE"))
-    if session[0] == "A":
-        exams = db.execute("SELECT * FROM exam ORDER BY grade")
-
-    exams = helpers.process_exams(exams)
+    exams = helpers.exam_from_session(session)
 
     flash("Deleted Successfully!")
     return render_template('view_exam.html', exams=exams, session=session)
@@ -194,14 +187,7 @@ def exam_status():
     elif status == "cancel":
         db.execute("UPDATE exam SET status = -1 WHERE exam_id = ?", id)
 
-    if session[0] == "G":
-        exams = db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date", session.removeprefix("GE"))
-    if session[0] == "D":
-        exams = db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY grade", session.removeprefix("DE"))
-    if session[0] == "A":
-        exams = db.execute("SELECT * FROM exam ORDER BY grade")
-
-    exams = helpers.process_exams(exams)
+    exams = helpers.exam_from_session(session)
 
     return render_template('view_exam.html', exams=exams, session=session)
 
@@ -408,11 +394,12 @@ def timetable():
         return redirect("/timetable")
 
 
-'''@app.route("/edit_timetable", method=["POST"])
-def edit_timetable():
-    timetable_id = request.form["id"]
-    session = request.form["session"]
-'''
+@app.route("/edit_data", method=["POST"])
+def edit_data():
+    timetable_id = request.args.get('id')
+    status = request.args.get('status')
+    session = request.args.get('session')
+
 
 
 

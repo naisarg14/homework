@@ -49,11 +49,9 @@
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <form action="/edit_worksheet" method="POST">
-                                            <input name="id" type="hidden" value="{{ worksheet.worksheet_id }}">
-                                            <input name="session" type="hidden" value="{{ session }}">
-                                            <button type="submit" class="btn btn-outline-warning">Edit</button>
-                                        </form>
+                                        <a href="/edit_data?datatype='worksheet'&id={{ worksheet.worksheet_id }}&session={{ session }}" class="btn btn-outline-warning">
+                                            Edit Worksheet
+                                        </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>

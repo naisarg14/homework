@@ -40,11 +40,25 @@ def process_date(date_str):
     return "None"
 
 
+def process_text(text):
+    text = str(text)
+    text = text.replace("<", "&lt;")
+    text = text.replace(">", "&gt;")
+    text = text.replace("&", "&lamp;")
+    text = text.replace("\"", "&quot;")
+    text = text.replace("\'", "&apos;")
+    
+    return text
+
+
 def process_homework(assignments):
     for assignment in assignments:
         assignment["grade"] = grades_dict[assignment["grade"]]
         assignment["date_given"] = process_date(assignment["date_given"])
         assignment["due_date"] = process_date(assignment["due_date"])
+
+        assignment["title"] = process_text(assignment["title"])
+        assignment["description"] = process_text(assignment["description"])
     return assignments
 
 
@@ -53,6 +67,9 @@ def process_exams(exams):
         exam["grade"] = grades_dict[exam["grade"]]
         exam["exam_time"] = process_time(exam["exam_time"])
         exam["exam_date"] = process_date(exam["exam_date"])
+
+        exam["title"] = process_text(exam["title"])
+        exam["portion"] = process_text(exam["portion"])
     return exams
 
 
@@ -61,15 +78,24 @@ def process_outline(outlines):
         outline["grade"] = grades_dict[outline["grade"]]
         outline["class_date"] = process_date(outline["class_date"])
         outline["time"] = process_time(outline["time"])
+
+        outline["title"] = process_text(outline["title"])
+        outline["description"] = process_text(outline["description"])
     return outlines
 
 
 def process_timetable(timetables):
     for timetable in timetables:
-        timetable["grade"] = grades_dict[timetable["grade"]]
+        try:
+            timetable["grade"] = grades_dict[timetable["grade"]]
+        except Exception:
+            pass
         timetable["class_date"] = process_date(timetable["class_date"])
         timetable["start_time"] = process_time(timetable["start_time"])
         timetable["end_time"] = process_time(timetable["end_time"])
+
+        timetable["grade"] = process_text(timetable["grade"])
+        timetable["description"] = process_text(timetable["description"])
     return timetables
 
 
@@ -77,6 +103,10 @@ def process_worksheet(worksheets):
     for worksheet in worksheets:
         worksheet["grade"] = grades_dict[worksheet["grade"]]
         worksheet["given_date"] = process_date(worksheet["given_date"])
+
+        worksheet["title"] = process_text(worksheet["title"])
+        worksheet["publication"] = process_text(worksheet["publication"])
+        worksheet["notes"] = process_text(worksheet["notes"])
     return worksheets
 
 
@@ -84,6 +114,9 @@ def process_guest(guest_lecture):
     for guest in guest_lecture:
         guest["grade"] = grades_dict[guest["grade"]]
         guest["date_given"] = process_date(guest["date_given"])
+
+        guest["title"] = process_text(guest["title"])
+        guest["description"] = process_text(guest["description"])
     return guest_lecture
 
 
@@ -159,6 +192,20 @@ def homework_from_session(session):
     assignments = process_homework(assignments)
 
     return assignments
+
+
+def exam_from_session(session):
+    db = SQL(f"sqlite:///{database}")
+    if session[0] == "G":
+        exams = db.execute("SELECT * FROM exam WHERE grade = ? ORDER BY exam_date DESC", session.removeprefix("GE"))
+    if session[0] == "D":
+        exams = db.execute("SELECT * FROM exam WHERE exam_date = ? ORDER BY grade", session.removeprefix("DE"))
+    if session[0] == "A":
+        exams = db.execute("SELECT * FROM exam ORDER BY exam_date DESC")
+
+    exams = process_exams(exams)
+
+    return exams
 
 
 def timetable_from_session(session):
