@@ -5,48 +5,61 @@
 {% endblock %}
 {% block main %}
 <h2 class="text-center">Schedule Class</h2>
-<form action="/timetable" class="row g-3" method="post">
-    <div class="col-3">
-        <label for="grade">Select Class</label>
-        <select autofocus class="form-select text-center form-control-lg" id="grade" name="grade" required>
-            <option selected disabled value="">Select Class</option>
-            {% for grade in grades_dict %}
-                <option value="{{ grade }}">{{ grades_dict[grade] }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-2">
-        <label for="grade">Select Subject</label>
-        <select class="form-select text-center form-control-lg" id="subject" name="subject" required>
-            <option selected disabled value="">Select Subject</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Science">Science</option>
-            <option value="Mathematics and Science">Mathematics and Science</option>
-        </select>
-    </div>
-    <div class="col-md-3">
-        <label for="date_given">Date Of Class</label>
-        <input autocomplete="off" class="form-control form-control-lg" id="class_date" name="class_date" placeholder="Date Of Class" required type="date" value="{{ today }}">
-    </div>
-    <div class="col-md-2">
-        <label for="start_time">Start Time</label>
-        <input autocomplete="off" class="form-control form-control-lg" id="start_time" name="start_time" placeholder="Start Time" required type="time">
-    </div>
-    <div class="col-md-2">
-        <label for="exam_time">End Time</label>
-        <input autocomplete="off" class="form-control form-control-lg" id="end_time" name="end_time" placeholder="End Time" required type="time">
-    </div>
-    <div class="col-4"></div>
-    <div class="col-md-4">
-        <label for="description">Description</label>
-        <textarea autocomplete="off" class="form-control form-control-lg" id="description" name="description" placeholder="Description" type="text"></textarea>
-    </div>
-    <div class="form-row text-center">
-        <button type="submit" class="btn btn-outline-primary mb-3" name="add_new" value="add_new">Schedule Class</button>
-        <button type="submit" class="btn btn-outline-success mb-3" name="add_message" value="add_message">Schedule Class and Generate Message</button>
-    </div>
-
-</form>
+    {% if timetable.grade %}
+        <form action="/edit_data" class="row g-3" method="post">
+            <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+            <input name="session" type="hidden" value="{{ session }}">
+    {% else %}
+        <form action="/timetable" class="row g-3" method="post">
+    {% endif %}
+            <div class="col-3">
+                <label for="grade">Select Class</label>
+                <select autofocus class="form-select text-center form-control-lg" id="grade" name="grade" required>
+                    {% if timetable.grade %}
+                        <option selected value="{{ timetable.grade }}">{{ grades_dict[timetable.grade] }}</option>
+                    {% else %}
+                        <option selected disabled value="">Select Class</option>
+                    {% endif %}
+                    {% for grade in grades_dict %}
+                        <option value="{{ grade }}">{{ grades_dict[grade] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-2">
+                <label for="grade">Select Subject</label>
+                <select class="form-select text-center form-control-lg" id="subject" name="subject" required>
+                    {% if timetable.grade %}
+                        <option selected value="{{ timetable.subject }}">{{ timetable.subject }}</option>
+                    {% else %}
+                        <option selected disabled value="">Select Subject</option>
+                    {% endif %}
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Science">Science</option>
+                    <option value="Mathematics and Science">Mathematics and Science</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="date_given">Date Of Class</label>
+                <input autocomplete="off" class="form-control form-control-lg" id="class_date" name="class_date" placeholder="Date Of Class" required type="date" value="{{ today }}">
+            </div>
+            <div class="col-md-2">
+                <label for="start_time">Start Time</label>
+                <input autocomplete="off" class="form-control form-control-lg" id="start_time" name="start_time" placeholder="Start Time" required type="time" value="{{ timetable.start_time }}">
+            </div>
+            <div class="col-md-2">
+                <label for="exam_time">End Time</label>
+                <input autocomplete="off" class="form-control form-control-lg" id="end_time" name="end_time" placeholder="End Time" required type="time" value="{{ timetable.end_time }}">
+            </div>
+            <div class="col-4"></div>
+            <div class="col-md-4">
+                <label for="description">Description</label>
+                <textarea autocomplete="off" class="form-control form-control-lg" id="description" name="description" placeholder="Description" type="text">{{ timetable.description }}</textarea>
+            </div>
+            <div class="form-row text-center">
+                <button type="submit" class="btn btn-outline-primary mb-3" name="add_new" value="add_new">Schedule Class</button>
+                <button type="submit" class="btn btn-outline-success mb-3" name="add_message" value="add_message">Schedule Class and Generate Message</button>
+            </div>
+        </form>
 
 <br>
 <h2 class="text-center">Class Schedule</h2>

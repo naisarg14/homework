@@ -368,7 +368,7 @@ def timetable():
         timetables = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", today))
         session = f"DT{today}"
 
-        return render_template("add_timetable.html", timetables=timetables, session=session, grades_dict=grades_dict, today=today)
+        return render_template("add_timetable.html", timetables=timetables, session=session, grades_dict=grades_dict, today=today, timetable=[])
 
     if request.method == "POST":
         grade = request.form["grade"]
@@ -380,7 +380,6 @@ def timetable():
         status = 0
 
         db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description, status) VALUES (?, ?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description, status)
-        flash("Added Successfully!")
 
         if "add_new" in request.form:
             flash("Class Added Successfully!")
@@ -394,19 +393,82 @@ def timetable():
         return redirect("/timetable")
 
 
-@app.route("/edit_data", method=["POST"])
+@app.route("/edit_data", methods=["GET","POST"])
 def edit_data():
-    timetable_id = request.args.get('id')
-    status = request.args.get('status')
-    session = request.args.get('session')
+    if request.method == "GET":
+        id = request.args.get('id')
+        session = request.args.get('session')
 
+        if session[1] == "H":
+            ...
 
+        if session[1] == "E":
+            ...
+
+        if session[1] == "O":
+            ...
+
+        if session[1] == "T":
+            timetable = db.execute("SELECT * FROM timetable WHERE timetable_id = ?", id)
+            timetable = timetable[0]
+
+            timetables = helpers.timetable_from_session(session)
+
+            return render_template("add_timetable.html", timetables=timetables, session=session, grades_dict=grades_dict, today=timetable["class_date"], timetable=timetable)
+
+        
+        if session[1] == "W":
+            ...
+
+        if session[1] == "L":
+            ...
+
+    if request.method == "POST":
+        id = request.form["id"]
+        session = request.form["session"]
+        
+        if session[1] == "H":
+            ...
+
+        if session[1] == "E":
+            ...
+
+        if session[1] == "O":
+            ...
+
+        if session[1] == "T":
+            grade = request.form["grade"]
+            subject = request.form["subject"]
+            class_date = request.form["class_date"]
+            start_time = request.form["start_time"]
+            end_time = request.form["end_time"]
+            description = request.form['description']
+            status = 0
+
+            db.execute("UPDATE timetable SET grade=?, subject=?, class_date=?, start_time=?, end_time=?, description=?, status=? WHERE timetable_id = ?", grade, subject, class_date, start_time, end_time, description, status, id)
+
+            flash("Class Updated Successfully!")
+            if "add_new" in request.form:
+                timetables = helpers.timetable_from_session(session)
+                return render_template('view_timetable.html', timetables=timetables, session=session)
+            
+            if "add_message" in request.form:
+                formatted_text = helpers.format_timetable(id)
+                return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+        
+        if session[1] == "W":
+            ...
+
+        if session[1] == "L":
+            ...
 
 
 @app.route("/delete_timetable", methods=["POST"])
 def delete_timetable():
     timetable_id = request.form["id"]
     session = request.form["session"]
+
+    db.execute("DELETE FROM timetable WHERE timetable_id = ?", timetable_id)
 
     timetables = helpers.timetable_from_session(session)
 
