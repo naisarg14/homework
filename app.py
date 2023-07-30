@@ -136,7 +136,7 @@ def schedule_test():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
 
-        return render_template("add_test.html", grades_dict=grades_dict, today=today)
+        return render_template("add_exam.html", grades_dict=grades_dict, today=today)
 
     if request.method == "POST":
         title = request.form['title'].title()
@@ -237,14 +237,7 @@ def delete_outline():
 
     db.execute("DELETE FROM outline WHERE outline_id = ?", outline_id)
 
-    if session[0] == "G":
-        outlines = db.execute("SELECT * FROM outline WHERE grade = ? ORDER BY class_date", session.removeprefix("GO"))
-    if session[0] == "D":
-        outlines = db.execute("SELECT * FROM outline WHERE class_date = ? ORDER BY grade", session.removeprefix("DO"))
-    if session[0] == "A":
-        outlines = db.execute("SELECT * FROM outline ORDER BY grade")
-
-    outlines = helpers.process_outline(outlines)
+    outlines = helpers.outline_from_session(session)
 
     flash("Deleted Successfully!")
     return render_template('view_outline.html', outlines=outlines, session=session)
@@ -366,7 +359,7 @@ def timetable():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
         timetables = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", today))
-        session = f"DT{today}"
+        session = "add"
 
         return render_template("add_timetable.html", timetables=timetables, session=session, grades_dict=grades_dict, today=today, timetable=[])
 
@@ -379,7 +372,7 @@ def timetable():
         description = request.form['description']
         status = 0
 
-        db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description, status) VALUES (?, ?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description, status)
+        id = db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description, status) VALUES (?, ?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description, status)
 
         if "add_new" in request.form:
             flash("Class Added Successfully!")
@@ -393,82 +386,15 @@ def timetable():
         return redirect("/timetable")
 
 
-@app.route("/edit_data", methods=["GET","POST"])
-def edit_data():
-    if request.method == "GET":
-        id = request.args.get('id')
-        session = request.args.get('session')
-
-        if session[1] == "H":
-            ...
-
-        if session[1] == "E":
-            ...
-
-        if session[1] == "O":
-            ...
-
-        if session[1] == "T":
-            timetable = db.execute("SELECT * FROM timetable WHERE timetable_id = ?", id)
-            timetable = timetable[0]
-
-            timetables = helpers.timetable_from_session(session)
-
-            return render_template("add_timetable.html", timetables=timetables, session=session, grades_dict=grades_dict, today=timetable["class_date"], timetable=timetable)
-
-        
-        if session[1] == "W":
-            ...
-
-        if session[1] == "L":
-            ...
-
-    if request.method == "POST":
-        id = request.form["id"]
-        session = request.form["session"]
-        
-        if session[1] == "H":
-            ...
-
-        if session[1] == "E":
-            ...
-
-        if session[1] == "O":
-            ...
-
-        if session[1] == "T":
-            grade = request.form["grade"]
-            subject = request.form["subject"]
-            class_date = request.form["class_date"]
-            start_time = request.form["start_time"]
-            end_time = request.form["end_time"]
-            description = request.form['description']
-            status = 0
-
-            db.execute("UPDATE timetable SET grade=?, subject=?, class_date=?, start_time=?, end_time=?, description=?, status=? WHERE timetable_id = ?", grade, subject, class_date, start_time, end_time, description, status, id)
-
-            flash("Class Updated Successfully!")
-            if "add_new" in request.form:
-                timetables = helpers.timetable_from_session(session)
-                return render_template('view_timetable.html', timetables=timetables, session=session)
-            
-            if "add_message" in request.form:
-                formatted_text = helpers.format_timetable(id)
-                return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
-        
-        if session[1] == "W":
-            ...
-
-        if session[1] == "L":
-            ...
-
-
 @app.route("/delete_timetable", methods=["POST"])
 def delete_timetable():
     timetable_id = request.form["id"]
     session = request.form["session"]
 
     db.execute("DELETE FROM timetable WHERE timetable_id = ?", timetable_id)
+
+    if session == "add":
+        return redirect("/timetable")
 
     timetables = helpers.timetable_from_session(session)
 
@@ -502,7 +428,6 @@ def add_event():
     if session[1] == "H":
         assignment = db.execute("SELECT * FROM homework WHERE homework_id = ? ", id)
         assignment = assignment[0]
-        #assignment = helpers.process_homework(assignment)
 
         timetables = db.execute("SELECT * FROM timetable WHERE grade = ? AND subject = ? AND class_date = ?", assignment["grade"], assignment["subject"], assignment["due_date"])
         
@@ -585,24 +510,84 @@ def delete_event():
         return render_template('view_homework.html', assignments=assignments, session=session)
 
     if session[1] == "E":
-        exam = db.execute("SELECT * FROM exam WHERE exam_id = ? ", id)
-        exam = helpers.process_exams(exam)
+        event_id = db.execute("SELECT event_id FROM exam WHERE exam_id = ? ", id)
+        event_id = event_id[0]
+
+        event_status = google_calander.delete_event(event_id["event_id"])
+
+        if event_status == 0:
+            db.execute("UPDATE exam SET event_id = ? WHERE exam_id = ?", "", id)
+            flash("Event Deleted Succeessfully!")
+        else:
+            flash(f"Event Not Deleted. Error: {event_status}")
+
+        exams = helpers.exam_from_session(session)
+
+        return render_template('view_exam.html', exams=exams, session=session)
 
     if session[1] == "O":
-        outline = db.execute("SELECT * FROM outline WHERE outline_id = ? ", id)
-        outline = helpers.process_outline(outline)
+        event_id = db.execute("SELECT event_id FROM outline WHERE outline_id = ? ", id)
+        event_id = event_id[0]
+
+        event_status = google_calander.delete_event(event_id["event_id"])
+
+        if event_status == 0:
+            db.execute("UPDATE outline SET event_id = ? WHERE outline_id = ?", "", id)
+            flash("Event Deleted Succeessfully!")
+        else:
+            flash(f"Event Not Deleted. Error: {event_status}")
+
+        outlines = helpers.outline_from_session(session)
+
+        return render_template('view_outline.html', outlines=outlines, session=session)
 
     if session[1] == "T":
-        timetable = db.execute("SELECT * FROM timetable WHERE timetable_id = ? ", id)
-        timetable = helpers.process_timetable(timetable)
+        event_id = db.execute("SELECT * FROM timetable WHERE timetable_id = ?", id)
+        event_id = event_id[0]
+
+        event_status = google_calander.delete_event(event_id["event_id"])
+
+        if event_status == 0:
+            db.execute("UPDATE timetable SET event_id = ? WHERE timetable_id = ?", "", id)
+            flash("Event Deleted Succeessfully!")
+        else:
+            flash(f"Event Not Deleted. Error: {event_status}")
+
+        timetables = helpers.timetable_from_session(session)
+
+        return render_template('view_timetable.html', timetables=timetables, session=session)
 
     if session[1] == "W":  
-        worksheet = db.execute("SELECT * FROM worksheet WHERE worksheet_id = ? ", id)
-        worksheet = helpers.process_worksheet(worksheet)
+        event_id = db.execute("SELECT * FROM worksheet WHERE worksheet_id = ? ", id)
+        event_id = event_id[0]
+
+        event_status = google_calander.delete_event(event_id["event_id"])
+
+        if event_status == 0:
+            db.execute("UPDATE worksheet SET event_id = ? WHERE worksheet_id = ?", "", id)
+            flash("Event Deleted Succeessfully!")
+        else:
+            flash(f"Event Not Deleted. Error: {event_status}")
+
+        worksheets = helpers.worksheet_from_session(session)
+
+        return render_template('view_worksheet.html', worksheets=worksheets, session=session)
     
     if session[1] == "L":
-        guest = db.execute("SELECT * FROM guest WHERE guest_id = ? ", id)
-        guest = helpers.process_guest(guest)
+        event_id = db.execute("SELECT * FROM guest WHERE guest_id = ? ", id)
+        event_id = event_id[0]
+
+        event_status = google_calander.delete_event(event_id["event_id"])
+
+        if event_status == 0:
+            db.execute("UPDATE guest SET event_id = ? WHERE guest_id = ?", "", id)
+            flash("Event Deleted Succeessfully!")
+        else:
+            flash(f"Event Not Deleted. Error: {event_status}")
+
+        guests = helpers.guest_from_session(session)
+
+        return render_template('view_guest.html', guests=guests, session=session)
         
     ##add backend for events
 
@@ -642,14 +627,7 @@ def delete_worksheet():
 
     db.execute("DELETE FROM worksheet WHERE worksheet_id = ?", worksheet_id)
 
-    if session[0] == "G":
-        worksheets = db.execute("SELECT * FROM worksheet WHERE grade = ? ORDER BY given_date", session.removeprefix("GW"))
-    if session[0] == "D":
-        worksheets = db.execute("SELECT * FROM worksheet WHERE given_date = ? ORDER BY grade", session.removeprefix("DW"))
-    if session[0] == "A":
-        worksheets = db.execute("SELECT * FROM worksheet ORDER BY given_date")
-
-    worksheets = helpers.process_worksheet(worksheets)
+    worksheets = helpers.worksheet_from_session(session)
 
     flash("Deleted Successfully!")
     return render_template('view_worksheet.html', worksheets=worksheets, session=session)
@@ -681,14 +659,7 @@ def delete_guest():
 
     db.execute("DELETE FROM guest WHERE guest_id = ?", guest_id)
 
-    if session[0] == "G":
-        guests = db.execute("SELECT * FROM guest WHERE grade = ? ORDER BY start_time", session.removeprefix("GL"))
-    if session[0] == "D":
-        guests = db.execute("SELECT * FROM guest WHERE class_date = ? ORDER BY start_time", session.removeprefix("DL"))
-    if session[0] == "A":
-        guests = db.execute("SELECT * FROM guest ORDER BY start_time")
-
-    guests = helpers.process_guest(guests)
+    guests = helpers.guest_from_session(session)
 
     flash("Deleted Successfully!")
     return render_template('view_guest.html', guests=guests, session=session)
@@ -711,10 +682,11 @@ def extra_class():
         start_time = request.form["start_time"]
         end_time = request.form["end_time"]
         description = request.form['description']
+        status = 0
 
         grade = grade + "(EC)"
 
-        db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description) VALUES (?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description)
+        db.execute("INSERT INTO timetable (grade, subject, class_date, start_time, end_time, description, status) VALUES (?, ?, ?, ?, ?, ?)", grade, subject, class_date, start_time, end_time, description, status)
         flash("Added Successfully!")
 
         return redirect("/extra_class")
@@ -742,7 +714,6 @@ def full_report():
     session = "AO"
     return render_template('view_outline.html', outlines=outlines, session=session)
 
-
 @app.route("/full_timetable")
 def full_timetable():
     timetables = db.execute("SELECT * FROM timetable ORDER BY class_date DESC, start_time")
@@ -751,7 +722,7 @@ def full_timetable():
     return render_template('view_timetable.html', timetables=timetables, session=session)
 
 @app.route("/full_worksheet")
-def full_worksheey():
+def full_worksheet():
     worksheets = db.execute("SELECT * FROM worksheet ORDER BY given_date DESC")
     worksheets = helpers.process_worksheet(worksheets)
     session = "AW"
@@ -768,6 +739,78 @@ def full_guest():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+
+@app.route("/edit_data", methods=["GET","POST"])
+def edit_data():
+    if request.method == "GET":
+        id = request.args.get('id')
+        session = request.args.get('session')
+
+        if session[1] == "H":
+            ...
+
+        if session[1] == "E":
+            ...
+
+        if session[1] == "O":
+            ...
+
+        if session[1] == "T":
+            timetable = db.execute("SELECT * FROM timetable WHERE timetable_id = ?", id)
+            timetable = timetable[0]
+
+            timetables = helpers.timetable_from_session(session)
+
+            return render_template("add_timetable.html", timetables=timetables, session=session, grades_dict=grades_dict, today=timetable["class_date"], timetable=timetable)
+
+        
+        if session[1] == "W":
+            ...
+
+        if session[1] == "L":
+            ...
+
+    if request.method == "POST":
+        id = request.form["id"]
+        session = request.form["session"]
+        
+        if session[1] == "H":
+            ...
+
+        if session[1] == "E":
+            ...
+
+        if session[1] == "O":
+            ...
+
+        if session[1] == "T":
+            grade = request.form["grade"]
+            subject = request.form["subject"]
+            class_date = request.form["class_date"]
+            start_time = request.form["start_time"]
+            end_time = request.form["end_time"]
+            description = request.form['description']
+            status = 0
+
+            db.execute("UPDATE timetable SET grade=?, subject=?, class_date=?, start_time=?, end_time=?, description=?, status=? WHERE timetable_id = ?", grade, subject, class_date, start_time, end_time, description, status, id)
+
+            flash("Class Updated Successfully!")
+            if "add_new" in request.form:
+                timetables = helpers.timetable_from_session(session)
+                return render_template('view_timetable.html', timetables=timetables, session=session)
+            
+            if "add_message" in request.form:
+                formatted_text = helpers.format_timetable(id)
+                return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+        
+        if session[1] == "W":
+            ...
+
+        if session[1] == "L":
+            ...
+
+
 
 
 ##edit button (homework, outline, test, timetable, worksheet, extra class)

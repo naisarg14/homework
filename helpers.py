@@ -208,6 +208,20 @@ def exam_from_session(session):
     return exams
 
 
+def outline_from_session(session):
+    db = SQL(f"sqlite:///{database}")
+    if session[0] == "G":
+        outlines = db.execute("SELECT * FROM outline WHERE grade = ? ORDER BY class_date DESC", session.removeprefix("GO"))
+    if session[0] == "D":
+        outlines = db.execute("SELECT * FROM outline WHERE class_date = ? ORDER BY grade", session.removeprefix("DO"))
+    if session[0] == "A":
+        outlines = db.execute("SELECT * FROM outline ORDER BY class_date DESC")
+
+    outlines = process_outline(outlines)
+
+    return outlines
+
+
 def timetable_from_session(session):
     db = SQL(f"sqlite:///{database}")
     if session[0] == "G":
@@ -218,5 +232,32 @@ def timetable_from_session(session):
         timetables = db.execute("SELECT * FROM timetable ORDER BY class_date DESC, start_time")
 
     timetables = process_timetable(timetables)
-
+    
     return timetables
+
+
+def worksheet_from_session(session):
+    db = SQL(f"sqlite:///{database}")
+    if session[0] == "G":
+        worksheets = db.execute("SELECT * FROM worksheet WHERE grade = ? ORDER BY given_date", session.removeprefix("GW"))
+    if session[0] == "D":
+        worksheets = db.execute("SELECT * FROM worksheet WHERE given_date = ? ORDER BY grade", session.removeprefix("DW"))
+    if session[0] == "A":
+        worksheets = db.execute("SELECT * FROM worksheet ORDER BY given_date")
+
+    worksheets = process_worksheet(worksheets)
+
+    return worksheets
+
+def guest_from_session(session):
+    db = SQL(f"sqlite:///{database}")
+    if session[0] == "G":
+        guests = db.execute("SELECT * FROM guest WHERE grade = ? ORDER BY date_given DESC", session.removeprefix("GL"))
+    if session[0] == "D":
+        guests = db.execute("SELECT * FROM guest WHERE class_date = ? ORDER BY grade", session.removeprefix("DL"))
+    if session[0] == "A":
+        guests = db.execute("SELECT * FROM guest ORDER BY date_given DESC")
+
+    guests = process_guest(guests)
+
+    return guests
