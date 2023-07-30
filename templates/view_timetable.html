@@ -36,7 +36,6 @@
                         <td>{{ timetable.description }}</td>
                         <td>
                             <div class="btn-group" role="group">
-<<<<<<< Updated upstream
                                 {% if timetable_status == 'danger' %}
                                     <a href="/class_status?id={{ timetable.timetable_id }}&status=done&session={{ session }}" class="btn btn-outline-success">
                                         <img src="/static/tick.png" alt="Button Icon" width="30" height="30">
@@ -54,15 +53,6 @@
                                     </a>
                                 {% endif %}
                             </div>
-=======
-                                <a href="/class_status?id={{ timetable.timetable_id }}&status=done&session={{ session }}" class="btn btn-outline-success">
-                                    <img src="/static/tick.png" alt="Button Icon" width="30" height="30">
-                                </a>
-                                <a href="/class_status?id={{ timetable.timetable_id }}&status=cancel&session={{ session }}" class="btn btn-outline-danger">
-                                    <img src="/static/cross.png" alt="Button Icon" width="30" height="30">
-                                </a>
-                             </div>
->>>>>>> Stashed changes
                         </td>
                         <td>
                             <div class="dropdown align-self-center">
@@ -83,13 +73,23 @@
                                         </form>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form action="/add_event" method="POST">
-                                            <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
-                                            <input name="session" type="hidden" value="{{ session }}">
-                                            <button type="submit" class="btn btn-outline-success">Add Event</button>
-                                        </form>
-                                    </li>
+                                    {% if timetable.event_id %}
+                                        <li>
+                                            <form action="/delete_event" method="POST">
+                                                <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+                                                <input name="session" type="hidden" value="{{ session }}">
+                                                <button type="submit" class="btn btn-outline-danger">Delete Event</button>
+                                            </form>
+                                        </li>
+                                    {% else %}
+                                        <li>
+                                            <form action="/add_event" method="POST">
+                                                <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+                                                <input name="session" type="hidden" value="{{ session }}">
+                                                <button type="submit" class="btn btn-outline-success">Add Event</button>
+                                            </form>
+                                        </li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a href="/edit_data?id={{ timetable.timetable_id }}&session={{ session }}" class="btn btn-outline-warning">

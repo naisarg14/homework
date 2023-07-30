@@ -11,7 +11,6 @@ grades_dict = {
     "12AM": "Class 12 AM",
     "diya": "Diya",
     "neel": "Neel",
-    "ansh": "Ansh",
     "sakshi": "Sakshi",
     "vedant": "Vedant",
     "dhiya": "Dhiya",

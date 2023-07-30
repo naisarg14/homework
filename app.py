@@ -51,7 +51,6 @@ grades_dict = {"9MWF": "Class 9 MWF",
                "12AM": "Class 12 AM",
                "diya": "Diya",
                "neel": "Neel",
-               "ansh": "Ansh",
                "sakshi": "Sakshi",
                "vedant": "Vedant",
                "dhiya": "Dhiya",
@@ -423,6 +422,7 @@ def class_status():
 def add_event():
     id = request.form["id"]
     session = request.form["session"]
+
     event_id = str(uuid.uuid4()).replace("-", "")
 
     if session[1] == "H":
@@ -450,7 +450,7 @@ def add_event():
             start_time=start_time,
             end_date=assignment["due_date"],
             end_time=end_time,
-            summary=assignment["title"],
+            summary=(grades_dict[assignment["grade"]] + assignment["title"]),
             location=location,
             description=assignment["description"],
         )
@@ -475,7 +475,36 @@ def add_event():
 
     if session[1] == "T":
         timetable = db.execute("SELECT * FROM timetable WHERE timetable_id = ? ", id)
-        timetable = helpers.process_timetable(timetable)
+        timetable = timetable[0]
+
+        start_time = str(timetable["start_time"]) + ":00"
+        end_time = str(timetable["end_time"]) + ":00"
+
+        if timetable["grade"] in ["diya", "neel", "sakshi", "vedant", "dhiya"]:
+            location = "Private Tution"
+        else:
+            location = "Shiv Apartment"
+
+        event_status = google_calander.add_event(
+            id=event_id,
+            start_date=timetable["class_date"],
+            start_time=start_time,
+            end_date=timetable["class_date"],
+            end_time=end_time,
+            summary=timetable["grade"],
+            location=location,
+            description=timetable["description"],
+        )
+
+        if event_status == 0:
+            db.execute("UPDATE timetable SET event_id = ? WHERE timetable_id = ?", event_id, id)
+            flash("Event Added Succeessfully!")
+        else:
+            flash(f"Event Not Added. Error: {event_status}")
+
+        timetables = helpers.timetable_from_session(session)
+
+        return render_template('view_timetable.html', timetables=timetables, session=session)
 
     if session[1] == "W":  
         worksheet = db.execute("SELECT * FROM worksheet WHERE worksheet_id = ? ", id)
