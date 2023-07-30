@@ -36,6 +36,7 @@
                         <td>{{ timetable.description }}</td>
                         <td>
                             <div class="btn-group" role="group">
+<<<<<<< Updated upstream
                                 {% if timetable_status == 'danger' %}
                                     <a href="/class_status?id={{ timetable.timetable_id }}&status=done&session={{ session }}" class="btn btn-outline-success">
                                         <img src="/static/tick.png" alt="Button Icon" width="30" height="30">
@@ -53,6 +54,15 @@
                                     </a>
                                 {% endif %}
                             </div>
+=======
+                                <a href="/class_status?id={{ timetable.timetable_id }}&status=done&session={{ session }}" class="btn btn-outline-success">
+                                    <img src="/static/tick.png" alt="Button Icon" width="30" height="30">
+                                </a>
+                                <a href="/class_status?id={{ timetable.timetable_id }}&status=cancel&session={{ session }}" class="btn btn-outline-danger">
+                                    <img src="/static/cross.png" alt="Button Icon" width="30" height="30">
+                                </a>
+                             </div>
+>>>>>>> Stashed changes
                         </td>
                         <td>
                             <div class="dropdown align-self-center">
