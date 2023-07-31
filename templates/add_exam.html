@@ -9,7 +9,11 @@
     <div class="col-2">
         <label for="grade">Select Class</label>
         <select autofocus class="form-select text-center form-control-lg" id="grade" name="grade" required>
-            <option selected disabled value="">Select Class</option>
+            {% if exam.grade %}
+                <option selected value="{{ exam.grade }}">{{ grades_dict[exam.grade] }}</option>
+            {% else %}
+                <option selected disabled value="">Select Class</option>
+            {% endif %}
             {% for grade in grades_dict %}
                     <option value="{{ grade }}">{{ grades_dict[grade] }}</option>
             {% endfor %}
@@ -17,7 +21,7 @@
     </div>
     <div class="col-md-3">
         <label for="title">Title</label>
-        <input autocomplete="off" class="form-control form-control-lg" id="title" name="title" placeholder="Title" required type="text">
+        <input autocomplete="off" class="form-control form-control-lg" id="title" name="title" placeholder="Title" required type="text" value="{{ exam.title }}">
     </div>
     <div class="col-3">
         <label for="exam_date">Date of Exam</label>
@@ -25,17 +29,21 @@
     </div>
     <div class="col-md-2">
         <label for="exam_time">Time</label>
-        <input autocomplete="off" class="form-control form-control-lg" id="exam_time" name="exam_time" placeholder="Time" required type="time">
+        <input autocomplete="off" class="form-control form-control-lg" id="exam_time" name="exam_time" placeholder="Time" required type="time" value="{{ exam.exam_time }}">
     </div>
     <div class="col-md-2">
         <label for="marks">Marks</label>
-        <input autocomplete="off" class="form-control form-control-lg" id="marks" name="marks" placeholder="Marks" required type="number">
+        <input autocomplete="off" class="form-control form-control-lg" id="marks" name="marks" placeholder="Marks" required type="number" value="{{ exam.marks }}">
     </div>
     <div class="col-md-2"></div>
     <div class="col-2">
         <label for="grade">Select Subject</label>
         <select class="form-select text-center form-control-lg" id="subject" name="subject" required>
-          <option selected disabled value="">Select Subject</option>
+            {% if exam.grade %}
+                <option selected value="{{ exam.subject }}">{{ exam.subject }}</option>
+            {% else %}
+                <option selected disabled value="">Select Subject</option>
+            {% endif %}
           <option value="Mathematics">Mathematics</option>
           <option value="Science">Science</option>
           <option value="Mathematics and Science">Mathematics and Science</option>
@@ -43,7 +51,7 @@
     </div>
     <div class="col-md-4">
         <label for="portion">Portion</label>
-        <textarea autocomplete="off" class="form-control form-control-lg" id="portion" name="portion" placeholder="Portion" required type="text"></textarea>
+        <textarea autocomplete="off" class="form-control form-control-lg" id="portion" name="portion" placeholder="Portion" required type="text">{{ exam.portion }}</textarea>
     </div>
     <div class="form-row text-center">
         <button type="submit" class="btn btn-outline-primary mb-3" name="add_new" value="add_new">Schedule</button>

@@ -6,11 +6,11 @@
 {% block main %}
 <h2 class="text-center">Schedule Class</h2>
     {% if timetable.grade %}
-        <form action="/edit_data" class="row g-3" method="post">
+        <form action="/change_data" class="row g-3" method="POST">
             <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
             <input name="session" type="hidden" value="{{ session }}">
     {% else %}
-        <form action="/timetable" class="row g-3" method="post">
+        <form action="/timetable" class="row g-3" method="POST">
     {% endif %}
             <div class="col-3">
                 <label for="grade">Select Class</label>

@@ -3,6 +3,9 @@ from cs50 import SQL
 from flask_session import Session
 from datetime import datetime, timedelta
 import uuid
+import logging
+
+logging.getLogger("cs50").disabled = False
 
 import helpers
 import google_calander
@@ -91,7 +94,7 @@ def add_homework():
     if request.method == 'GET':
         today = datetime.now().date().isoformat()
 
-        return render_template('add_homework.html', grades_dict=grades_dict, today=today)
+        return render_template('add_homework.html', grades_dict=grades_dict, today=today, homework=[])
 
     if request.method == 'POST':
         title = request.form['title'].title()
@@ -105,13 +108,12 @@ def add_homework():
         id = db.execute(" INSERT INTO homework (title, date_given, due_date, grade, subject, description) VALUES (?, ?, ?, ?, ?, ?)",
                     title, date_given, due_date, grade, subject, description)
         
+        flash('Homework assignment added successfully!')
         if "add_new" in request.form:
-            flash('Homework assignment added successfully!')
             return redirect("/add_homework")
         
         if "add_message" in request.form:
             formatted_text = helpers.format_homework(id)
-            flash('Homework assignment added successfully!')
             return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
 
 
@@ -135,7 +137,7 @@ def schedule_test():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
 
-        return render_template("add_exam.html", grades_dict=grades_dict, today=today)
+        return render_template("add_exam.html", grades_dict=grades_dict, today=today, exam=[])
 
     if request.method == "POST":
         title = request.form['title'].title()
@@ -150,13 +152,12 @@ def schedule_test():
         id = db.execute("INSERT INTO exam (title, exam_date, grade, exam_time, marks, portion, subject) VALUES (?, ?, ?, ?, ?, ?, ?)",
                    title, exam_date, grade, exam_time, marks, portion, subject)
 
+        flash("Exam Scheduled!")
         if "add_new" in request.form:
-            flash("Exam Scheduled!")
             return redirect("/schedule_test")
         
         if "add_message" in request.form:
             formatted_text = helpers.format_exam(id)
-            flash("Exam Scheduled!")
             return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
 
 
@@ -197,7 +198,7 @@ def class_outline():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
 
-        return render_template("add_outline.html", grades_dict=grades_dict, today=today)
+        return render_template("add_outline.html", grades_dict=grades_dict, today=today, outline=[])
 
     if request.method == "POST":
         title = request.form['title'].title()
@@ -209,13 +210,12 @@ def class_outline():
 
         id = db.execute("INSERT INTO outline (title, class_date, grade, description, subject, time) VALUES (?, ?, ?, ?, ?)", title, class_date, grade, description, subject, time)
         
+        flash("Added Successfully")
         if "add_new" in request.form:
-            flash("Added Successfully")
             return redirect("/class_outline")
         
         if "add_message" in request.form:
             formatted_text = helpers.format_outline(id)
-            flash("Added Successfully")
             return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
         
 
@@ -467,7 +467,36 @@ def add_event():
 
     if session[1] == "E":
         exam = db.execute("SELECT * FROM exam WHERE exam_id = ? ", id)
-        exam = helpers.process_exams(exam)
+        exam = exam[0]
+
+        start_time = str(exam["exam_time"]) + ":00"
+        end_time = str(exam["end_time"]) + ":00"
+
+        if exam["grade"] in ["diya", "neel", "sakshi", "vedant", "dhiya"]:
+            location = "Private Tution"
+        else:
+            location = "Shiv Apartment"
+
+        event_status = google_calander.add_event(
+            id=event_id,
+            start_date=exam["exam_date"],
+            start_time=start_time,
+            end_date=exam["exam_date"],
+            end_time=end_time,
+            summary=f'{grades_dict[exam["grade"]]}: {exam["title"]} (Marks: {exam["marks"]})',
+            location=location,
+            description=exam["portion"],
+        )
+
+        if event_status == 0:
+            db.execute("UPDATE timetable SET event_id = ? WHERE timetable_id = ?", event_id, id)
+            flash("Event Added Succeessfully!")
+        else:
+            flash(f"Event Not Added. Error: {event_status}")
+
+        timetables = helpers.timetable_from_session(session)
+
+        return render_template('view_timetable.html', timetables=timetables, session=session)
 
     if session[1] == "O":
         outline = db.execute("SELECT * FROM outline WHERE outline_id = ? ", id)
@@ -617,16 +646,13 @@ def delete_event():
         guests = helpers.guest_from_session(session)
 
         return render_template('view_guest.html', guests=guests, session=session)
-        
-    ##add backend for events
-
 
 
 @app.route("/worksheet", methods=["GET", "POST"])
 def add_worksheet():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
-        return render_template("add_worksheet.html", grades_dict=grades_dict, publications=publications, today=today)
+        return render_template("add_worksheet.html", grades_dict=grades_dict, publications=publications, today=today, worksheet=[])
 
     if request.method == "POST":
         publication = request.form["publication"].title()
@@ -639,13 +665,12 @@ def add_worksheet():
 
         id = db.execute("INSERT INTO worksheet (publication, title, given_date, grade, subject, copies, notes) VALUES (?, ?, ?, ?, ?, ?, ?)", publication, title, given_date, grade, subject, copies, notes)
 
+        flash("Worksheet Issued Successfully!")
         if "add_new" in request.form:
-            flash("Worksheet Issued Successfully!")
             return redirect("/worksheet")
         
         if "add_message" in request.form:
             formatted_text = helpers.format_worksheet(id)
-            flash("Worksheet Issued Successfully!")
             return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
         
 
@@ -666,7 +691,7 @@ def delete_worksheet():
 def guest_lecture():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
-        return render_template("guest_lecture.html", today=today, grades_dict=grades_dict)
+        return render_template("add_guest_lecture.html", today=today, grades_dict=grades_dict, guest=[])
 
     if request.method == "POST":
         grade = request.form["grade"]
@@ -678,7 +703,14 @@ def guest_lecture():
 
         id = db.execute("INSERT INTO guest_lecture (grade, date_given, subject, duration, title, description) VALUES (?, ?, ?, ?, ?, ?)", grade, date_given, subject, duration, title, description)
 
-        return redirect("/guest_lecture")
+        flash("Guest Lecture Added Successfully!")
+        if "add_new" in request.form:
+            return redirect("/guest_lecture")
+        
+        if "add_message" in request.form:
+            formatted_text = helpers.format_guest(id)
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+
 
 
 @app.route("/delete_guest", methods=["POST"])
@@ -770,77 +802,167 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/edit_data", methods=["GET","POST"])
+@app.route("/edit_data", methods=["POST"])
 def edit_data():
-    if request.method == "GET":
-        id = request.args.get('id')
-        session = request.args.get('session')
+    id = request.form['id']
+    session = request.form['session']
 
-        if session[1] == "H":
-            ...
+    if session[1] == "H":
+        homework = db.execute("SELECT * FROM homework WHERE homework_id = ?", id)
+        homework = homework[0]
 
-        if session[1] == "E":
-            ...
+        return render_template('add_homework.html', grades_dict=grades_dict, today=homework["date_given"], homework=homework, session=session)
 
-        if session[1] == "O":
-            ...
+    if session[1] == "E":
+        exam = db.execute("SELECT * FROM exam WHERE exam_id = ?", id)
+        exam = exam[0]
 
-        if session[1] == "T":
-            timetable = db.execute("SELECT * FROM timetable WHERE timetable_id = ?", id)
-            timetable = timetable[0]
+        return render_template("add_exam.html", grades_dict=grades_dict, today=exam["exam_date"], exam=exam, session=session)
 
-            timetables = helpers.timetable_from_session(session)
+    if session[1] == "O":
+        outline = db.execute("SELECT * FROM outline WHERE outline_id = ?", id)
+        outline = outline[0]
 
-            return render_template("add_timetable.html", timetables=timetables, session=session, grades_dict=grades_dict, today=timetable["class_date"], timetable=timetable)
+        return render_template("add_outline.html", grades_dict=grades_dict, today=outline["class_date"], outline=outline, session=session)
 
+    if session[1] == "T":
+        timetable = db.execute("SELECT * FROM timetable WHERE timetable_id = ?", id)
+        timetable = timetable[0]
+
+        timetables = helpers.timetable_from_session(session)
+
+        return render_template("add_timetable.html", timetables=timetables, session=session, grades_dict=grades_dict, today=timetable["class_date"], timetable=timetable)
+    
+    if session[1] == "W":
+        worksheet = db.execute("SELECT * FROM worksheet WHERE worksheet_id = ?", id)
+        worksheet = worksheet[0]
+
+        return render_template("add_worksheet.html", grades_dict=grades_dict, publications=publications, today=worksheet["given_date"], worksheet=worksheet, session=session)
+
+    if session[1] == "L":
+        guest = db.execute("SELECT * FROM guest WHERE guest_id = ?", id)
+        guest = guest[0]
+
+        return render_template("add_guest_lecture.html", today=guest["date_given"], grades_dict=grades_dict, guest=guest, session=session)
+
+
+@app.route("/change_data", methods=["POST"])
+def change_data():
+    id = request.form["id"]
+    session = request.form["session"]
+    
+    if session[1] == "H":
+        title = request.form['title'].title()
+        date_given = request.form['date_given']
+        due_date = request.form['due_date']
+        grade = request.form['grade']
+        subject = request.form['subject']
+        description = request.form['description']
+
+        db.execute("UPDATE homework SET title=?, date_given=?, due_date=?, grade=?, subject=?, description=? WHERE homework_id = ?", title, date_given, due_date, grade, subject, description, id)
+
+        flash("Homework Updated Successfully!")
+        if "add_new" in request.form:
+            return redirect("/add_homework")
         
-        if session[1] == "W":
-            ...
+        if "add_message" in request.form:
+            formatted_text = helpers.format_homework(id)
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
 
-        if session[1] == "L":
-            ...
 
-    if request.method == "POST":
-        id = request.form["id"]
-        session = request.form["session"]
+    if session[1] == "E":
+        title = request.form['title'].title()
+        exam_date = request.form['exam_date']
+        grade = request.form['grade']
+        exam_time = request.form['exam_time']
+        marks = request.form['marks']
+        portion = request.form['portion'].capitalize()
+        subject = request.form['subject']
+
+        db.execute("UPDATE exam SET title=?, exam_date=?, grade=?, exam_time=?, marks=?, portion=?, subject=? WHERE exam_id = ?", title, exam_date, grade, exam_time, marks, portion, subject, id)
+
+        flash("Exam Updated Successfully!")
+        if "add_new" in request.form:
+            return redirect("/schedule_test")
         
-        if session[1] == "H":
-            ...
+        if "add_message" in request.form:
+            formatted_text = helpers.format_exam(id)
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
 
-        if session[1] == "E":
-            ...
 
-        if session[1] == "O":
-            ...
+    if session[1] == "O":
+        title = request.form['title'].title()
+        class_date = request.form['class_date']
+        grade = request.form['grade']
+        description = request.form['description']
+        subject = request.form['subject']
+        time = request.form['time']
 
-        if session[1] == "T":
-            grade = request.form["grade"]
-            subject = request.form["subject"]
-            class_date = request.form["class_date"]
-            start_time = request.form["start_time"]
-            end_time = request.form["end_time"]
-            description = request.form['description']
-            status = 0
+        db.execute("UPDATE outline SET title=?, class_date=?, grade=?, description=?, subject=?, time=? WHERE outline_id = ?", title, class_date, grade, description, subject, time, id)
 
-            db.execute("UPDATE timetable SET grade=?, subject=?, class_date=?, start_time=?, end_time=?, description=?, status=? WHERE timetable_id = ?", grade, subject, class_date, start_time, end_time, description, status, id)
-
-            flash("Class Updated Successfully!")
-            if "add_new" in request.form:
-                timetables = helpers.timetable_from_session(session)
-                return render_template('view_timetable.html', timetables=timetables, session=session)
-            
-            if "add_message" in request.form:
-                formatted_text = helpers.format_timetable(id)
-                return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+        flash("Report Updated Successfully!")
+        if "add_new" in request.form:
+            return redirect("/class_outline")
         
-        if session[1] == "W":
-            ...
+        if "add_message" in request.form:
+            formatted_text = helpers.format_outline(id)
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
 
-        if session[1] == "L":
-            ...
+    if session[1] == "T":
+        grade = request.form["grade"]
+        subject = request.form["subject"]
+        class_date = request.form["class_date"]
+        start_time = request.form["start_time"]
+        end_time = request.form["end_time"]
+        description = request.form['description']
+        status = 0
+
+        db.execute("UPDATE timetable SET grade=?, subject=?, class_date=?, start_time=?, end_time=?, description=?, status=? WHERE timetable_id = ?", grade, subject, class_date, start_time, end_time, description, status, id)
+
+        flash("Class Updated Successfully!")
+        if "add_new" in request.form:
+            return redirect("/timetable")
+        
+        if "add_message" in request.form:
+            formatted_text = helpers.format_timetable(id)
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+    
+    if session[1] == "W":
+        publication = request.form["publication"].title()
+        title = request.form["title"].title()
+        given_date = request.form["given_date"]
+        grade = request.form["grade"]
+        subject = request.form["subject"]
+        copies = request.form["copies"]
+        notes = request.form["notes"]
+
+        db.execute("UPDATE worksheet SET publication=?, title=?, given_date=?, grade=?, subject=?, copies=?, notes=? WHERE worksheet_id = ?", publication, title, given_date, grade, subject, copies, notes, id)
+
+        flash("Worksheet Updated Successfully!")
+        if "add_new" in request.form:
+            return redirect("/worksheet")
+        
+        if "add_message" in request.form:
+            formatted_text = helpers.format_worksheet(id)
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
+
+    if session[1] == "L":
+        grade = request.form["grade"]
+        date_given = request.form["date_given"]
+        subject = request.form["subject"]
+        duration = request.form["duration"]
+        title = request.form["title"].title()
+        description = request.form["description"]
+
+        db.execute("UPDATE guest SET grade=?, date_given=?, subject=?, duration=?, title=?, description=? WHERE guest_id = ?", grade, date_given, subject, duration, title, description, id)
+
+        flash("Guest Lecture Updated Successfully!")
+        if "add_new" in request.form:
+            return redirect("/guest_lecture")
+        
+        if "add_message" in request.form:
+            formatted_text = helpers.format_guest(id)
+            return render_template("confirm_schedule_test.html", formatted_text=formatted_text)
 
 
-
-
-##edit button (homework, outline, test, timetable, worksheet, extra class)
 ##add event

@@ -92,9 +92,11 @@
                                     {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a href="/edit_data?id={{ timetable.timetable_id }}&session={{ session }}" class="btn btn-outline-warning">
-                                            Edit Timetable
-                                        </a>
+                                        <form action="/edit_data" method="POST">
+                                            <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+                                            <input name="session" type="hidden" value="{{ session }}">
+                                            <button type="submit" class="btn btn-outline-warning">Edit</button>
+                                        </form>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
