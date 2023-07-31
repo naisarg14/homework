@@ -358,8 +358,7 @@ def timetable():
     if request.method == "GET":
         today = datetime.now().date().isoformat()
         timetables = helpers.process_timetable(db.execute("SELECT * FROM timetable WHERE class_date = ? ORDER BY start_time", today))
-        session = "add"
-
+        session = f"DT{today}"
         return render_template("add_timetable.html", timetables=timetables, session=session, grades_dict=grades_dict, today=today, timetable=[])
 
     if request.method == "POST":
