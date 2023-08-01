@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from cs50 import SQL
 
 grades_dict = {
@@ -260,3 +260,13 @@ def guest_from_session(session):
     guests = process_guest(guests)
 
     return guests
+
+
+def add_timedelta_to_time(time, delta):
+    datetime_time = datetime.strptime(time, "%H:%M")
+    time_delta = timedelta(minutes=delta)
+    
+    new_time = datetime_time + time_delta
+    result = new_time.strftime("%H:%M")
+
+    return result

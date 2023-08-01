@@ -39,14 +39,6 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <form action="/add_event" method="POST">
-                                        <input name="id" type="hidden" value="{{ outline.outline_id }}">
-                                        <input name="session" type="hidden" value="{{ session }}">
-                                        <button type="submit" class="btn btn-outline-success">Add Event</button>
-                                    </form>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
                                     <form action="/edit_data" method="POST">
                                         <input name="id" type="hidden" value="{{ outline.outline_id }}">
                                         <input name="session" type="hidden" value="{{ session }}">

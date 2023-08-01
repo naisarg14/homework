@@ -1,6 +1,7 @@
 import uuid
 import google_calander
 from cs50 import SQL
+import helpers
 
 # unique_id = str(uuid.uuid4()).replace("-", "")
 # print(unique_id)
@@ -18,7 +19,7 @@ from cs50 import SQL
 )
 
 print(google_calander.delete_event("dd901e23505e41ca9642780fb7fd286c"))
-"""
+
 db = SQL("sqlite:///homework.db")
 assignment = db.execute("SELECT * FROM homework WHERE homework_id = ? ", 2)
 assignment = assignment[0]
@@ -33,3 +34,7 @@ if timetables:
     print("ok")
 else:
     print("not ok")
+    """
+
+
+print(helpers.add_timedelta_to_time("09:00", 120))
