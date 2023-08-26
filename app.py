@@ -498,48 +498,6 @@ def add_event():
 
         return render_template('view_exam.html', exams=exams, session=session)
 
-    #Not Required
-    """
-    if session[1] == "O":
-        outline = db.execute("SELECT * FROM outline WHERE outline_id = ? ", id)
-        outline = outline[0]
-        
-        start_time = str(outline["time"]) + ":00"
-
-        timetables = db.execute("SELECT * FROM timetable WHERE grade = ? AND subject = ? AND class_date = ?", assignment["grade"], assignment["subject"], assignment["due_date"])
-        
-        if timetables:
-            timetable = timetables[0]
-            end_time = str(timetable["end_time"]) + ":00"
-        else:
-            end_time = "22:00:00"
-
-        if outline["grade"] in ["diya", "neel", "sakshi", "vedant", "dhiya"]:
-            location = "Private Tution"
-        else:
-            location = "Shiv Apartment"
-
-        event_status = google_calander.add_event(
-            id=event_id,
-            start_date=outline["class_date"],
-            start_time=start_time,
-            end_date=outline["class_date"],
-            end_time=end_time,
-            summary=f'{grades_dict[outline["grade"]]}: {outline["title"]})',
-            location=location,
-            description=outline["description"],
-        )
-
-        if event_status == 0:
-            db.execute("UPDATE outline SET event_id = ? WHERE outline_id = ?", event_id, id)
-            flash("Event Added Succeessfully!")
-        else:
-            flash(f"Event Not Added. Error: {event_status}")
-
-        outlines = helpers.outline_from_session(session)
-
-        return render_template('view_outline.html', outlines=outlines, session=session)
-        """
 
     if session[1] == "T":
         timetable = db.execute("SELECT * FROM timetable WHERE timetable_id = ? ", id)
@@ -610,6 +568,51 @@ def add_event():
         return render_template('view_guest.html', guests=guests, session=session)
 
 
+    #Not Required
+    """
+    if session[1] == "O":
+        outline = db.execute("SELECT * FROM outline WHERE outline_id = ? ", id)
+        outline = outline[0]
+        
+        start_time = str(outline["time"]) + ":00"
+
+        timetables = db.execute("SELECT * FROM timetable WHERE grade = ? AND subject = ? AND class_date = ?", assignment["grade"], assignment["subject"], assignment["due_date"])
+        
+        if timetables:
+            timetable = timetables[0]
+            end_time = str(timetable["end_time"]) + ":00"
+        else:
+            end_time = "22:00:00"
+
+        if outline["grade"] in ["diya", "neel", "sakshi", "vedant", "dhiya"]:
+            location = "Private Tution"
+        else:
+            location = "Shiv Apartment"
+
+        event_status = google_calander.add_event(
+            id=event_id,
+            start_date=outline["class_date"],
+            start_time=start_time,
+            end_date=outline["class_date"],
+            end_time=end_time,
+            summary=f'{grades_dict[outline["grade"]]}: {outline["title"]})',
+            location=location,
+            description=outline["description"],
+        )
+
+        if event_status == 0:
+            db.execute("UPDATE outline SET event_id = ? WHERE outline_id = ?", event_id, id)
+            flash("Event Added Succeessfully!")
+        else:
+            flash(f"Event Not Added. Error: {event_status}")
+
+        outlines = helpers.outline_from_session(session)
+
+        return render_template('view_outline.html', outlines=outlines, session=session)
+        """
+
+
+
 @app.route("/delete_event", methods=["POST"])
 def delete_event():
     id = request.form["id"]
@@ -646,6 +649,39 @@ def delete_event():
         exams = helpers.exam_from_session(session)
 
         return render_template('view_exam.html', exams=exams, session=session)
+
+    if session[1] == "T":
+        event_id = db.execute("SELECT * FROM timetable WHERE timetable_id = ?", id)
+        event_id = event_id[0]
+
+        event_status = google_calander.delete_event(event_id["event_id"])
+
+        if event_status == 0:
+            db.execute("UPDATE timetable SET event_id = ? WHERE timetable_id = ?", "", id)
+            flash("Event Deleted Succeessfully!")
+        else:
+            flash(f"Event Not Deleted. Error: {event_status}")
+
+        timetables = helpers.timetable_from_session(session)
+
+        return render_template('view_timetable.html', timetables=timetables, session=session)
+
+    if session[1] == "L":
+        event_id = db.execute("SELECT * FROM guest WHERE guest_id = ? ", id)
+        event_id = event_id[0]
+
+        event_status = google_calander.delete_event(event_id["event_id"])
+
+        if event_status == 0:
+            db.execute("UPDATE guest SET event_id = ? WHERE guest_id = ?", "", id)
+            flash("Event Deleted Succeessfully!")
+        else:
+            flash(f"Event Not Deleted. Error: {event_status}")
+
+        guests = helpers.guest_from_session(session)
+
+        return render_template('view_guest.html', guests=guests, session=session)
+
 #Not Required
     """
     if session[1] == "O":
@@ -664,21 +700,7 @@ def delete_event():
 
         return render_template('view_outline.html', outlines=outlines, session=session)
     """
-    if session[1] == "T":
-        event_id = db.execute("SELECT * FROM timetable WHERE timetable_id = ?", id)
-        event_id = event_id[0]
 
-        event_status = google_calander.delete_event(event_id["event_id"])
-
-        if event_status == 0:
-            db.execute("UPDATE timetable SET event_id = ? WHERE timetable_id = ?", "", id)
-            flash("Event Deleted Succeessfully!")
-        else:
-            flash(f"Event Not Deleted. Error: {event_status}")
-
-        timetables = helpers.timetable_from_session(session)
-
-        return render_template('view_timetable.html', timetables=timetables, session=session)
 
     #Not Required
     """
@@ -698,21 +720,6 @@ def delete_event():
 
         return render_template('view_worksheet.html', worksheets=worksheets, session=session)
     """
-    if session[1] == "L":
-        event_id = db.execute("SELECT * FROM guest WHERE guest_id = ? ", id)
-        event_id = event_id[0]
-
-        event_status = google_calander.delete_event(event_id["event_id"])
-
-        if event_status == 0:
-            db.execute("UPDATE guest SET event_id = ? WHERE guest_id = ?", "", id)
-            flash("Event Deleted Succeessfully!")
-        else:
-            flash(f"Event Not Deleted. Error: {event_status}")
-
-        guests = helpers.guest_from_session(session)
-
-        return render_template('view_guest.html', guests=guests, session=session)
 
 
 @app.route("/worksheet", methods=["GET", "POST"])

@@ -131,13 +131,23 @@
                                     </form>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form action="/add_event" method="POST">
-                                        <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
-                                        <input name="session" type="hidden" value="{{ session }}">
-                                        <button type="submit" class="btn btn-outline-success">Add Event</button>
-                                    </form>
-                                </li>
+                                {% if timetable.event_id %}
+                                    <li>
+                                        <form action="/delete_event" method="POST">
+                                            <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+                                            <input name="session" type="hidden" value="{{ session }}">
+                                            <button type="submit" class="btn btn-outline-danger">Delete Event</button>
+                                        </form>
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <form action="/add_event" method="POST">
+                                            <input name="id" type="hidden" value="{{ timetable.timetable_id }}">
+                                            <input name="session" type="hidden" value="{{ session }}">
+                                            <button type="submit" class="btn btn-outline-success">Add Event</button>
+                                        </form>
+                                    </li>
+                                {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="/edit_data" method="POST">
