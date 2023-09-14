@@ -209,7 +209,7 @@ def class_outline():
         subject = request.form['subject']
         time = request.form['time']
 
-        id = db.execute("INSERT INTO outline (title, class_date, grade, description, subject, time) VALUES (?, ?, ?, ?, ?)", title, class_date, grade, description, subject, time)
+        id = db.execute("INSERT INTO outline (title, class_date, grade, description, subject, time) VALUES (?, ?, ?, ?, ?, ?)", title, class_date, grade, description, subject, time)
         
         flash("Added Successfully")
         if "add_new" in request.form:
