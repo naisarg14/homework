@@ -3,21 +3,21 @@ import google_calander
 from cs50 import SQL
 import helpers
 
-# unique_id = str(uuid.uuid4()).replace("-", "")
-# print(unique_id)
-"""print(
+unique_id = str(uuid.uuid4()).replace("-", "")
+print(unique_id)
+print(
     google_calander.add_event(
         id=unique_id,
-        start_date="2023-07-28",
+        start_date="2023-09-28",
         start_time="11:00:00",
-        end_date="2023-07-28",
+        end_date="2023-09-28",
         end_time="13:00:00",
         summary="test&test",
         location="hogwards",
         description="timepassispasstime",
     )
 )
-
+"""
 print(google_calander.delete_event("dd901e23505e41ca9642780fb7fd286c"))
 
 db = SQL("sqlite:///homework.db")
@@ -35,6 +35,3 @@ if timetables:
 else:
     print("not ok")
     """
-
-
-print(helpers.add_timedelta_to_time("09:00", 120))
