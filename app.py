@@ -25,8 +25,8 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///homework.db")
-database = "homework.db"
+db = SQL("sqlite:///homework_2024.db")
+database = "homework_2024.db"
 
 
 """
@@ -45,19 +45,18 @@ def login():
 
 
 
-grades = ["9MWF", "9TTS", "9MOR", "10TTS", "11MWF", "12MWF", "12AM"]
-grades_dict = {"9MWF": "Class 9 MWF",
-               "9TTS": "Class 9 TTS",
+#grades = ["9BT1", "9BT2", "9MOR", "10BT1", "10BT2", "10BT3", "11MWF", "12MWF", "11AM"]
+grades_dict = {"9BT1": "Class 9 Batch-1",
+               "9BT2": "Class 9 Batch-2",
                "9MOR": "Isucceed Achievers 6 AM",
-               "10TTS": "Class 10-Diligent Squad",
+               "10BT1": "Class 10 Batch-1",
+               "10BT2": "Class 10 Batch-2",
+               "10BT3": "Class 10 Batch-3",
                "11MWF": "Class 11",
                "12MWF": "Class 12",
-               "12AM": "Class 12 AM",
+               "11AM": "Class 11 AM",
                "diya": "Diya",
                "neel": "Neel",
-               "sakshi": "Sakshi",
-               "vedant": "Vedant",
-               "dhiya": "Dhiya",
                }
 subjects = ["Mathematics", "Science", "Mathematics and Science"]
 publications = {"oswaal": "Oswaal Books",
