@@ -48,7 +48,6 @@ def login():
 #grades = ["9BT1", "9BT2", "9MOR", "10BT1", "10BT2", "10BT3", "11MWF", "12MWF", "11AM"]
 grades_dict = {"9BT1": "Class 9 Batch-1",
                "9BT2": "Class 9 Batch-2",
-               "9MOR": "Isucceed Achievers 6 AM",
                "10BT1": "Class 10 Batch-1",
                "10BT2": "Class 10 Batch-2",
                "10BT3": "Class 10 Batch-3",
