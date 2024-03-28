@@ -20,9 +20,9 @@
             </thead>
             <tbody class="table-group-divider align-middle">
                 {% for timetable in timetables %}
-                    {% if timetable.status == 1 %}
+                    {% if timetable.status == '1' %}
                         {% set timetable_status = 'success' %}
-                    {% elif timetable.status == -1 %}
+                    {% elif timetable.status == '-1' %}
                         {% set timetable_status = 'danger' %}
                     {% else %}
                         {% set timetable_status = 'warning' %}

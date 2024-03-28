@@ -9,7 +9,7 @@ import uuid
 #logging.getLogger("cs50").disabled = False
 
 import helpers
-import google_calander
+#import google_calander
 
 
 # Configure application
