@@ -11,6 +11,7 @@ grades_dict = {"9BT1": "Class 9 Batch-1",
                "11AM": "Class 11 AM",
                "diya": "Diya",
                "neel": "Neel",
+               "bhawna": "Bhawna Teacher",
                }
 database = "homework_2024.db"
 name = "Bhawna Teacher"

@@ -56,6 +56,7 @@ grades_dict = {"9BT1": "Class 9 Batch-1",
                "11AM": "Class 11 AM",
                "diya": "Diya",
                "neel": "Neel",
+               "bhawna": "Bhawna Teacher",
                }
 subjects = ["Mathematics", "Science", "Mathematics and Science"]
 publications = {"oswaal": "Oswaal Books",
