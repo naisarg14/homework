@@ -21,9 +21,9 @@
             </thead>
             <tbody class="table-group-divider align-middle">
                 {% for exam in exams %}
-                    {% if exam.status == 1 %}
+                    {% if exam.status == '1' %}
                         {% set exam_status = 'success' %}
-                    {% elif exam.status == -1 %}
+                    {% elif exam.status == '-1' %}
                         {% set exam_status = 'danger' %}
                     {% else %}
                         {% set exam_status = 'warning' %}
